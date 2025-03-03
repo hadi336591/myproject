@@ -10,33 +10,27 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/auth.js';
 import visaApplicationRoutes from './routes/visaApplication.js';
 import paymentRoutes from './routes/payment.js';
-import notificationsRoutes from './routes/notifications.js';
 import dashboardRoutes from './routes/dashboard.js';
 import adminRoutes from './routes/admin.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Connect to MongoDB
 connectDB();
 
-// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 100,
 });
 app.use(limiter);
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/visa-application', visaApplicationRoutes);
 app.use('/api/payment', paymentRoutes);
-app.use('/api/notifications', notificationsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin', adminRoutes);
 

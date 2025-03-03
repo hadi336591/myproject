@@ -7,17 +7,29 @@ import BackButton from '../components/BackButton';
 const VisaApplication = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = {
       fullName: e.target.fullName.value,
       email: e.target.email.value,
       visaType: e.target.visaType.value,
     };
-    // Temporarily store application data
-    localStorage.setItem('applicationData', JSON.stringify(formData));
-    // Redirect to Payment page
-    navigate('/payment');
+    try {
+      const response = await fetch('http://localhost:5000/api/visa-application', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        // Redirect to a confirmation page or back to home
+        navigate('/');
+      } else {
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error('Error submitting visa application:', error);
+    }
   };
 
   return (
@@ -41,7 +53,7 @@ const VisaApplication = () => {
             <MenuItem value="Student">Student</MenuItem>
           </TextField>
           <Button type="submit" variant="contained">
-            Proceed to Payment
+            Submit Application
           </Button>
         </Box>
       </Container>

@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import VisaApplication from './pages/VisaApplication';
-import PaymentPage from './pages/PaymentPage';
+import DrawPage from './pages/DrawPage';
 import Dashboard from './pages/Dashboard';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
@@ -17,27 +17,13 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/apply" element={<VisaApplication />} />
-        <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/draw" element={<DrawPage />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminPanel />
-            </AdminRoute>
-          }
-        />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
       </Routes>
     </Router>
   );

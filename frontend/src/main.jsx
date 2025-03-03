@@ -1,37 +1,16 @@
 
-
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './context/AuthContext';
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#0D47A1', // Dark blue for a professional look
-    },
-    secondary: {
-      main: '#424242', // Neutral grey for secondary elements
-    },
-    background: {
-      default: '#f5f5f5', // Light background for contrast
-      paper: '#ffffff',
-    },
-    text: {
-      primary: '#333333',
-      secondary: '#555555',
-      
-    },
-  },
-});
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme';
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-<AuthProvider>
-  <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <App />
-  </ThemeProvider>
+  <AuthProvider>
+    <ThemeProvider theme={theme}>
+      <App />
+    </ThemeProvider>
   </AuthProvider>
 );

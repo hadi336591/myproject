@@ -4,18 +4,16 @@ import VisaApplication from '../models/VisaApplication.js';
 
 const router = express.Router();
 
-// POST /api/visa-application
 router.post(
   '/',
   [
     body('fullName').notEmpty().withMessage('Full name required'),
     body('email').isEmail().withMessage('Valid email required'),
-    body('visaType').notEmpty().withMessage('Visa type required')
+    body('visaType').notEmpty().withMessage('Visa type required'),
   ],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty())
-      return res.status(400).json({ errors: errors.array() });
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     try {
       const newApplication = new VisaApplication(req.body);
       await newApplication.save();
