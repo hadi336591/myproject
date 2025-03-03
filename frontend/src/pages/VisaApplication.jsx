@@ -1,35 +1,33 @@
 import { Container, Box, Typography, TextField, Button, MenuItem } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import BackButton from '../components/BackButton';
 
 const VisaApplication = () => {
-  const handleSubmit = async (e) => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     const formData = {
       fullName: e.target.fullName.value,
       email: e.target.email.value,
       visaType: e.target.visaType.value,
     };
-
-    try {
-      const response = await fetch('http://localhost:5000/api/visa-application', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await response.json();
-      console.log('Response:', data);
-      // Handle response (e.g., show success message)
-    } catch (error) {
-      console.error('Error submitting application:', error);
-    }
+    // Temporarily store application data
+    localStorage.setItem('applicationData', JSON.stringify(formData));
+    // Redirect to Payment page
+    navigate('/payment');
   };
 
   return (
     <>
       <Navbar />
+      <Container maxWidth="sm" sx={{ py: 2 }}>
+        <BackButton />
+      </Container>
       <Container maxWidth="sm" sx={{ py: 6 }}>
-        <Typography variant="h4" align="center" sx={{ color: 'primary.main', mb: 4 }}>
+        <Typography variant="h4" align="center" sx={{ mb: 4 }}>
           Visa Application Form
         </Typography>
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -42,8 +40,8 @@ const VisaApplication = () => {
             <MenuItem value="Work">Work</MenuItem>
             <MenuItem value="Student">Student</MenuItem>
           </TextField>
-          <Button type="submit" variant="contained" color="primary">
-            Submit Application
+          <Button type="submit" variant="contained">
+            Proceed to Payment
           </Button>
         </Box>
       </Container>

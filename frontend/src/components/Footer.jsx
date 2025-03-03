@@ -1,12 +1,12 @@
-
+import { Box, Typography } from '@mui/material';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 py-4 mt-8">
-      <div className="container mx-auto text-center text-white">
-        <p>&copy; 2025 VisaApply. All Rights Reserved.</p>
-      </div>
-    </footer>
+    <Box sx={{ backgroundColor: '#424242', py: 2, mt: 4 }}>
+      <Typography variant="body2" align="center" color="white">
+        &copy; 2025 VisaEase. All Rights Reserved.
+      </Typography>
+    </Box>
   );
 };
 

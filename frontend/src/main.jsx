@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { AuthProvider } from './context/AuthContext';
 
 const theme = createTheme({
   palette: {
@@ -20,14 +21,17 @@ const theme = createTheme({
     text: {
       primary: '#333333',
       secondary: '#555555',
+      
     },
   },
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+<AuthProvider>
   <ThemeProvider theme={theme}>
     <CssBaseline />
     <App />
   </ThemeProvider>
+  </AuthProvider>
 );

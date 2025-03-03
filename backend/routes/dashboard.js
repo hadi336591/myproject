@@ -1,27 +1,17 @@
-// routes/dashboard.js
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import { verifyToken } from '../middleware/authMiddleware.js';
+import VisaApplication from '../models/VisaApplication.js';
 
 const router = express.Router();
 
-// Middleware to verify JWT
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'No token, authorization denied' });
-  
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
+    // For demonstration, we fetch the latest application.
+    const application = await VisaApplication.findOne().sort({ createdAt: -1 });
+    res.json({ message: 'User dashboard data', user: req.user, application });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch application data' });
   }
-};
-
-// GET /api/dashboard (protected)
-router.get('/', authMiddleware, (req, res) => {
-  // Return user-specific dashboard data here
-  res.json({ message: 'User dashboard data', user: req.user });
 });
 
 export default router;
