@@ -1,52 +1,62 @@
-import { useEffect, useState, useContext } from 'react';
-import { Container, Typography, Button } from '@mui/material';
+import { Box, Container, Typography, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { AuthContext } from '../context/AuthContext';
+import BackButton from '../components/BackButton';
 
 const AdminPanel = () => {
-  const { auth, logout } = useContext(AuthContext);
-  const [adminData, setAdminData] = useState(null);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/admin', {
-          headers: { Authorization: `Bearer ${auth.token}` }
-        });
-        const data = await response.json();
-        if (response.ok) {
-          setAdminData(data);
-        } else {
-          setError(data.message || 'Failed to fetch admin data');
-        }
-      } catch (err) {
-        console.log(err);
-        setError('Failed to fetch admin data');
-      }
-    };
-    fetchAdminData();
-  }, [auth.token]);
+  const navigate = useNavigate();
 
   return (
     <>
       <Navbar />
-      <Container sx={{ py: 6, textAlign: 'center' }}>
-        <Typography variant="h4" sx={{ color: '#FFCC00' }}>Admin Panel</Typography>
-        {error && <Typography color="error">{error}</Typography>}
-        {adminData ? (
-          <Typography variant="body1" sx={{ mt: 2 }}>
-            Admin Data: {JSON.stringify(adminData)}
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          backgroundColor: 'background.default',
+        }}
+      >
+        <Container sx={{ flexGrow: 1, py: { xs: 2, sm: 4 } }}>
+          <BackButton />
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              color: 'secondary.main',
+              mb: { xs: 2, sm: 4 },
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+            }}
+          >
+            Admin Panel
           </Typography>
-        ) : (
-          <Typography variant="body1" sx={{ mt: 2 }}>Loading admin data...</Typography>
-        )}
-        <Button variant="contained" sx={{ mt: 4, backgroundColor: '#FFCC00', color: 'black' }} onClick={logout}>
-          Logout
-        </Button>
-      </Container>
-      <Footer />
+          <Typography
+            variant="body1"
+            align="center"
+            sx={{
+              color: 'text.primary',
+              fontSize: { xs: '1rem', sm: '1.125rem', md: '1.25rem' },
+            }}
+          >
+            Welcome to the Admin Panel. Here you can manage users, verify applications, and perform other administrative tasks.
+          </Typography>
+          <Button
+            variant="contained"
+            sx={{
+              mt: 4,
+              backgroundColor: 'secondary.main',
+              color: 'black',
+              px: 3,
+              py: 1,
+            }}
+            onClick={() => navigate(-1)}
+          >
+            Go Back
+          </Button>
+        </Container>
+        <Footer />
+      </Box>
     </>
   );
 };

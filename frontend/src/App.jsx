@@ -10,10 +10,16 @@ import Register from './pages/Register';
 import AdminPanel from './pages/AdminPanel';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import TopBar from './components/TopBar';
+
 
 function App() {
   return (
     <Router>
+      {/* Top bar first */}
+      <TopBar />
+      {/* Main navbar below */}
+      {/* <Navbar /> */}
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/apply" element={<VisaApplication />} />
