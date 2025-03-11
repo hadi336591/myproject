@@ -3,11 +3,23 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Countdown from '../components/Countdown';
+import VisaCategories from '../components/VisaCategories';
+import Testimonials from '../components/Testimonials';
+
+const countries = [
+  { src: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg', label: 'Spain' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/immigration-1.jpg', label: 'United States' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2020/08/immigration-2.jpg', label: 'Canada' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/germany.jpg', label: 'Germany' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/france.jpg', label: 'France' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/turkiye.jpg', label: 'Türkiye' },
+];
 
 const HomePage = () => {
   return (
     <>
       <Navbar />
+
       {/* Hero Section */}
       <Box
         sx={{
@@ -37,7 +49,7 @@ const HomePage = () => {
 
       {/* Draw Section */}
       <Box sx={{ backgroundColor: '#303030', py: 6 }}>
-      <Container maxWidth="md" sx={{ textAlign: 'center', color: 'white' }}>
+        <Container maxWidth="md" sx={{ textAlign: 'center', color: 'white' }}>
           <Typography variant="h2" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
             Apply for Your Visa Online
           </Typography>
@@ -51,48 +63,50 @@ const HomePage = () => {
       </Box>
 
       {/* Image Grid Section */}
-      <Box sx={{ py: 6, backgroundColor: 'background.paper' }}>
+      <Box sx={{ py: 8, backgroundColor: '#F8F9FA' }}>
         <Container maxWidth="lg" sx={{ textAlign: 'center' }}>
-          <Typography variant="h4" sx={{ color: 'secondary.main', mb: 4 }}>
-            Our Global Reach
+          <Typography variant="subtitle2" sx={{ letterSpacing: 1, color: 'gray', mb: 1 }}>
+            COUNTRIES WE OFFER SUPPORT
           </Typography>
-          <Grid container spacing={4}>
-            {[
-              { src: '/assets/europe.jpg', label: 'Europe' },
-              { src: '/assets/america.jpg', label: 'America' },
-              { src: '/assets/canada.jpg', label: 'Canada' },
-              { src: '/assets/australia.jpg', label: 'Australia' },
-            ].map((item) => (
-              <Grid item xs={12} sm={6} md={3} key={item.label}>
-                <img src={item.src} alt={item.label} style={{ width: '100%', borderRadius: 8 }} />
-                <Typography variant="subtitle1" sx={{ mt: 1, color: '#283593' }}>
-                  {item.label}
-                </Typography>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 4 }}>
+            Immigration & Visa Services <br /> Following Countries
+          </Typography>
+          <Box sx={{ width: 50, height: 4, backgroundColor: '#d32f2f', mx: 'auto', mb: 4 }}></Box>
 
-      {/* Visa Categories Section */}
-      <Box sx={{ py: 6 }}>
-        <Container maxWidth="md" sx={{ textAlign: 'center' }}>
-          <Typography variant="h3" sx={{ color: 'secondary.main' }}>
-            Visa Categories
-          </Typography>
-          <Grid container spacing={4} sx={{ mt: 4, justifyContent: 'center' }}>
-            {['Visit', 'Business', 'Work', 'Student'].map((type) => (
-              <Grid item xs={12} sm={6} md={3} key={type}>
-                <Box sx={{ backgroundColor: 'background.paper', p: 3, borderRadius: 2, textAlign: 'center', boxShadow: 3 }}>
-                  <Typography variant="h6" sx={{ color: 'secondary.main' }}>
-                    {type} Visa
-                  </Typography>
-                  <Typography variant="body2" sx={{ mt: 1, color: 'text.primary' }}>
-                    Apply for a {type.toLowerCase()} visa hassle-free.
-                  </Typography>
-                  <Button variant="contained" sx={{ mt: 2, backgroundColor: 'secondary.main', color: 'black' }} component={Link} to="/apply">
-                    Apply Now
-                  </Button>
+          <Grid container spacing={3}>
+            {countries.map((country) => (
+              <Grid item xs={12} sm={6} md={4} key={country.label}>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    boxShadow: 2,
+                    '&:hover img': { transform: 'scale(1.05)' },
+                  }}
+                >
+                  <img
+                    src={country.src}
+                    alt={country.label}
+                    style={{ width: '100%', height: '220px', objectFit: 'cover', transition: '0.3s ease' }}
+                  />
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      backgroundColor: 'rgba(0,0,0,0.5)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ color: '#fff', fontWeight: 'bold' }}>
+                      {country.label}
+                    </Typography>
+                  </Box>
                 </Box>
               </Grid>
             ))}
@@ -100,30 +114,9 @@ const HomePage = () => {
         </Container>
       </Box>
 
-      {/* Testimonials Section */}
-      <Box sx={{ backgroundColor: '#303030', py: 6 }}>
-        <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
-          <Typography variant="h3" sx={{ color: 'secondary.main' }}>
-            What Our Clients Say
-          </Typography>
-          <Box sx={{ mt: 4, backgroundColor: 'background.paper', p: 3, borderRadius: 2, boxShadow: 3 }}>
-            <Typography variant="body1" sx={{ fontStyle: 'italic', color: 'text.primary' }}>
-              &quot;Great service! My visa application was smooth and hassle-free.&quot;
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mt: 1, color: 'secondary.main' }}>
-              - John Doe
-            </Typography>
-          </Box>
-          <Box sx={{ mt: 2, backgroundColor: 'background.paper', p: 3, borderRadius: 2, boxShadow: 3 }}>
-            <Typography variant="body1" sx={{ fontStyle: 'italic', color: 'text.primary' }}>
-              &quot;Excellent support and quick processing. Highly recommended!&quot;
-            </Typography>
-            <Typography variant="subtitle1" sx={{ mt: 1, color: 'secondary.main' }}>
-              - Jane Smith
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+      {/* Visa Categories Section */}
+      <VisaCategories />
+<Testimonials />
 
       <Footer />
     </>

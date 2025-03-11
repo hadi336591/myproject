@@ -8,10 +8,10 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <AppBar position="static">
+    <AppBar position="static"> {/* Dark theme */}
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
-          <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <Link to="/" style={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}>
             VisaApply
           </Link>
         </Typography>
@@ -23,7 +23,12 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/contact">Contact</Button>
           {auth ? (
             <Button
-              color="inherit"
+              variant="contained"
+              sx={{
+                backgroundColor: "red",
+                color: "white",
+                '&:hover': { backgroundColor: "#b71c1c" },
+              }}
               onClick={() => {
                 logout();
                 navigate('/');
@@ -33,10 +38,20 @@ const Navbar = () => {
             </Button>
           ) : (
             <>
-              <Button color="inherit" component={Link} to="/login">
+              <Button
+                variant="contained"
+                color="secondary"
+                component={Link}
+                to="/login"
+              >
                 Login
               </Button>
-              <Button color="inherit" component={Link} to="/register">
+              <Button
+                variant="contained"
+                color="secondary"
+                component={Link}
+                to="/register"
+              >
                 Register
               </Button>
             </>

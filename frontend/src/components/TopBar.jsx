@@ -49,12 +49,11 @@ const TopBar = () => {
           </Select>
         </Box>
 
-        {/* Center: Apply for VISA to Spain in Pakistan */}
+        
         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-        Apply for a Visa through the draw process{' '}
+        Apply for a Visa through the draw process Online.{' '}
           <img
-            src="/assets/pk-flag.png"
-            alt="Pakistan Flag"
+            src=""
             style={{ width: 20, verticalAlign: 'middle', marginLeft: 4 }}
           />
         </Typography>
