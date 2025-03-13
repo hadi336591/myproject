@@ -32,6 +32,7 @@ const HomePage = () => {
           <Typography variant="h5" sx={{ mt: 2 }}>
             Secure, Fast, and Reliable Visa Processing for Europe, America, Canada, and Australia.
           </Typography>
+          <Countdown duration={600} />
           <Button variant="contained" sx={{ mt: 4 }} component={Link} to="/apply">
             Apply Now
           </Button>
