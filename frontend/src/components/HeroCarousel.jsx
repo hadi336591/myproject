@@ -37,7 +37,7 @@ const HeroCarousel = () => {
       animation="fade"
       navButtonsAlwaysVisible={true}
       sx={{
-        height: '100vh',
+        height: '70vh',
         '& .MuiPaper-root': {
           backgroundColor: 'transparent',
         },
@@ -47,7 +47,7 @@ const HeroCarousel = () => {
         <Box
           key={index}
           sx={{
-            height: '100vh',
+            height: '70vh',
             backgroundImage: `url(${item.image})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -65,6 +65,11 @@ const HeroCarousel = () => {
           <Typography variant="h6" sx={{ textAlign: 'center', maxWidth: '600px' }}>
             {item.description}
           </Typography>
+          {item.children && (
+            <Box sx={{ mt: 2 }}>
+              {item.children}
+            </Box>
+          )}
         </Box>
       ))}
     </Carousel>
