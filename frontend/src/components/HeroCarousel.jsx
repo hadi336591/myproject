@@ -59,12 +59,7 @@ const HeroCarousel = () => {
             textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
           }}
         >
-          <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
-            {item.title}
-          </Typography>
-          <Typography variant="h6" sx={{ textAlign: 'center', maxWidth: '600px' }}>
-            {item.description}
-          </Typography>
+          {/* Removed text content */}
           {item.children && (
             <Box sx={{ mt: 2 }}>
               {item.children}
