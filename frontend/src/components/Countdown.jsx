@@ -13,9 +13,11 @@ const Countdown = ({ duration }) => {
   }, []);
 
   const formatTime = seconds => {
-    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const days = Math.floor(seconds / (60 * 60 * 24)).toString().padStart(2, '0');
+    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60)).toString().padStart(2, '0');
+    const mins = Math.floor((seconds % (60 * 60)) / 60).toString().padStart(2, '0');
     const secs = (seconds % 60).toString().padStart(2, '0');
-    return `${mins}:${secs}`;
+    return `${days}d ${hours}h ${mins}m ${secs}s`;
   };
 
   return (

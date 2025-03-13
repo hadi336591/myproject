@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import Countdown from '../components/Countdown';
 import VisaCategories from '../components/VisaCategories';
 import Testimonials from '../components/Testimonials';
+import HeroCarousel from '../components/HeroCarousel';
 
 const countries = [
   { src: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg', label: 'Spain' },
@@ -23,28 +24,41 @@ const HomePage = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          height: '100vh',
-          backgroundImage: "url('/assets/hero-bg.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          display: 'flex',
-          alignItems: 'center',
+          position: 'relative',
+          height: '70vh',
+          overflow: 'hidden',
         }}
       >
-        <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
-          <Typography variant="h3" sx={{ color: '#ff9800' }}>
+        <HeroCarousel />
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            color: 'white',
+            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+            zIndex: 2,
+          }}
+        >
+          <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
             Join Our Lucky Draw!
           </Typography>
-          <Typography variant="body1" sx={{ mt: 1, color: '#333333' }}>
+          <Typography variant="body1" sx={{ mt: 1 }}>
             Get a chance to win free visa processing by paying only 3000 PKR.
           </Typography>
           <Box sx={{ mt: 2 }}>
-            <Countdown duration={600} />
+            <Countdown duration={3888000} />
           </Box>
           <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw">
             Join Draw
           </Button>
-        </Container>
+        </Box>
       </Box>
 
       {/* Draw Section */}
