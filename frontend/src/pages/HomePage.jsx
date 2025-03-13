@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import Countdown from '../components/Countdown';
 import VisaCategories from '../components/VisaCategories';
 import Testimonials from '../components/Testimonials';
+import HeroCarousel from '../components/HeroCarousel';
 
 const countries = [
   { src: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg', label: 'Spain' },
@@ -52,7 +53,7 @@ const HomePage = () => {
             Get a chance to win free visa processing by paying only 3000 PKR.
           </Typography>
           <Box sx={{ mt: 2 }}>
-            <Countdown duration={600} />
+            <Countdown duration={3888000} />
           </Box>
           <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw">
             Join Draw
@@ -69,7 +70,6 @@ const HomePage = () => {
           <Typography variant="h5" sx={{ mt: 2 }}>
             Secure, Fast, and Reliable Visa Processing for Europe, America, Canada, and Australia.
           </Typography>
-          <Countdown duration={600} />
           <Button variant="contained" sx={{ mt: 4 }} component={Link} to="/apply">
             Apply Now
           </Button>
