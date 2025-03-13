@@ -21,31 +21,7 @@ const HomePage = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <Box
-        sx={{
-          height: '100vh',
-          backgroundImage: "url('/assets/hero-bg.jpg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Container maxWidth="sm" sx={{ textAlign: 'center' }}>
-          <Typography variant="h3" sx={{ color: '#ff9800' }}>
-            Join Our Lucky Draw!
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 1, color: '#333333' }}>
-            Get a chance to win free visa processing by paying only 3000 PKR.
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            <Countdown duration={600} />
-          </Box>
-          <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw">
-            Join Draw
-          </Button>
-        </Container>
-      </Box>
+      <HeroCarousel />
 
       {/* Draw Section */}
       <Box sx={{ backgroundColor: '#303030', py: 6 }}>
