@@ -1,5 +1,5 @@
 import { Box, Container, Grid, TextField, Button, IconButton, Typography } from '@mui/material';
-import { Facebook, Twitter, Instagram, LinkedIn, RssFeed, Email } from '@mui/icons-material';
+import { Facebook, Twitter, Instagram, LinkedIn, RssFeed, Email, AdminPanelSettings } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -132,6 +132,10 @@ const Footer = () => {
             <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
             <Link to="/about" style={{ color: 'white', textDecoration: 'none' }}>About Us</Link>
             <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact Us</Link>
+            <Link to="/admin" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              <AdminPanelSettings fontSize="small" sx={{ mr: 0.5 }} />
+              Admin
+            </Link>
           </Box>
         </Box>
       </Container>

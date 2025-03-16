@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Box, Container, Typography, Button, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -17,6 +18,35 @@ const countries = [
 ];
 
 const HomePage = () => {
+  const [heroContent, setHeroContent] = useState({
+    title: 'Join Our Lucky Draw!',
+    subtitle: 'Get a chance to win free visa processing by paying only 3000 PKR.',
+    buttonText: 'Join Draw'
+  });
+
+  useEffect(() => {
+    // Fetch hero content from backend
+    const fetchHeroContent = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/hero-content');
+        if (response.ok) {
+          const data = await response.json();
+          if (data) {
+            setHeroContent({
+              title: data.title || heroContent.title,
+              subtitle: data.subtitle || heroContent.subtitle,
+              buttonText: data.buttonText || heroContent.buttonText
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching hero content:', error);
+      }
+    };
+
+    fetchHeroContent();
+  }, []);
+
   return (
     <>
       <Navbar />
@@ -47,16 +77,16 @@ const HomePage = () => {
           }}
         >
           <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
-            Join Our Lucky Draw!
+            {heroContent.title}
           </Typography>
           <Typography variant="body1" sx={{ mt: 1 }}>
-            Get a chance to win free visa processing by paying only 3000 PKR.
+            {heroContent.subtitle}
           </Typography>
           <Box sx={{ mt: 2 }}>
             <Countdown duration={3888000} />
           </Box>
-          <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw">
-            Join Draw
+          <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw-application">
+            {heroContent.buttonText}
           </Button>
         </Box>
       </Box>
@@ -130,7 +160,7 @@ const HomePage = () => {
 
       {/* Visa Categories Section */}
       <VisaCategories />
-<Testimonials />
+      <Testimonials />
 
       <Footer />
     </>
