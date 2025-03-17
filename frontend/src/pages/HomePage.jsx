@@ -6,6 +6,7 @@ import Countdown from '../components/Countdown';
 import VisaCategories from '../components/VisaCategories';
 import Testimonials from '../components/Testimonials';
 import HeroCarousel from '../components/HeroCarousel';
+import { useEffect, useState } from 'react';
 
 const countries = [
   { src: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg', label: 'Spain' },
@@ -17,6 +18,31 @@ const countries = [
 ];
 
 const HomePage = () => {
+  const [heroContent, setHeroContent] = useState({
+    title: 'Join Our Lucky Draw!',
+    subtitle: 'Get a chance to win free visa processing by paying only 3000 PKR.',
+    buttonText: 'Join Draw'
+  });
+
+  useEffect(() => {
+    // Fetch hero content from API
+    const fetchHeroContent = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/admin/hero-section');
+        if (response.ok) {
+          const data = await response.json();
+          if (data._id) {
+            setHeroContent(data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching hero content:', error);
+      }
+    };
+
+    fetchHeroContent();
+  }, []);
+
   return (
     <>
       <Navbar />
@@ -47,16 +73,16 @@ const HomePage = () => {
           }}
         >
           <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
-            Join Our Lucky Draw!
+            {heroContent.title}
           </Typography>
           <Typography variant="body1" sx={{ mt: 1 }}>
-            Get a chance to win free visa processing by paying only 3000 PKR.
+            {heroContent.subtitle}
           </Typography>
           <Box sx={{ mt: 2 }}>
             <Countdown duration={3888000} />
           </Box>
-          <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw">
-            Join Draw
+          <Button variant="contained" sx={{ mt: 3 }} component={Link} to="/draw-application">
+            {heroContent.buttonText}
           </Button>
         </Box>
       </Box>
@@ -130,7 +156,7 @@ const HomePage = () => {
 
       {/* Visa Categories Section */}
       <VisaCategories />
-<Testimonials />
+      <Testimonials />
 
       <Footer />
     </>
