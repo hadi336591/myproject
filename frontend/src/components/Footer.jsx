@@ -1,8 +1,13 @@
 import { Box, Container, Grid, TextField, Button, IconButton, Typography } from '@mui/material';
-import { Facebook, Twitter, Instagram, LinkedIn, RssFeed, Email } from '@mui/icons-material';
+import { Facebook, Twitter, Instagram, LinkedIn, RssFeed, Email, AdminPanelSettings } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 const Footer = () => {
+  const { auth } = useContext(AuthContext);
+  const isAdmin = auth && auth.user && auth.user.role === 'admin';
+
   return (
     <Box sx={{ 
       backgroundColor: '#001f3f', 
@@ -46,6 +51,12 @@ const Footer = () => {
               <Link to="/team" style={{ color: 'white', textDecoration: 'none' }}>Our Team</Link>
               <Link to="/services" style={{ color: 'white', textDecoration: 'none' }}>Services</Link>
               <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact Us</Link>
+              {isAdmin && (
+                <Link to="/admin" style={{ color: '#ff9800', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AdminPanelSettings fontSize="small" />
+                  Admin Panel
+                </Link>
+              )}
             </Box>
           </Grid>
 

@@ -11,7 +11,7 @@ const testimonials = [
   {
     name: 'Areej Fatima',
     review:
-      'It was a nice experience journey with Nile Travels For My Journey. Provided me with a very comfortable and excellent stay. Excellent service with a nice and helpful staff.',
+      'It was a nice experience journey with VisaEase Travels For My Journey. Provided me with a very comfortable and excellent stay. Excellent service with a nice and helpful staff.',
     avatar: '/assets/avatar2.png', // Replace with actual avatar
   },
 ];

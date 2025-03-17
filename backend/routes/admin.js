@@ -1,54 +1,161 @@
 import express from 'express';
 import multer from 'multer';
-import jwt from 'jsonwebtoken';
+import path from 'path';
+import fs from 'fs';
 import { verifyAdmin } from '../middleware/authMiddleware.js';
 import BlogPost from '../models/BlogPost.js';
 import NewsFeed from '../models/NewsFeed.js';
+import DrawApplication from '../models/DrawApplication.js';
+import HeroContent from '../models/HeroContent.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
-// GET /api/admin - Dummy admin panel endpoint (protected)
-router.get('/', verifyAdmin, (req, res) => {
-  res.json({ message: 'Admin panel data', user: req.user });
-});
-
-// Configure Multer for file uploads (for document verification)
+// Configure Multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Ensure this folder exists; you may need to create it manually.
+    const uploadDir = 'uploads/';
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({ storage });
-
-// POST /api/admin/verify-document - Document verification endpoint
-router.post('/verify-document', verifyAdmin, upload.single('document'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: 'No document uploaded' });
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
   }
-  // Here you would implement actual document verification logic.
-  res.json({ message: 'Document verified successfully', file: req.file.filename });
 });
 
-// POST /api/admin/add-blog - Add a blog post endpoint
-router.post('/add-blog', verifyAdmin, async (req, res) => {
-  const { title, content } = req.body;
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content are required' });
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|pdf/;
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = filetypes.test(file.mimetype);
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Only .jpeg, .jpg, .png, and .pdf files are allowed'));
+    }
   }
+});
+
+// GET - Admin dashboard data
+router.get('/', verifyAdmin, async (req, res) => {
   try {
-    const blog = new BlogPost({ title, content });
-    await blog.save();
-    res.status(200).json({ message: 'Blog post added successfully', blog });
+    // Get counts for dashboard
+    const drawApplicationsCount = await DrawApplication.countDocuments();
+    const paidDrawApplicationsCount = await DrawApplication.countDocuments({ paymentStatus: true });
+    const usersCount = await User.countDocuments();
+    const blogsCount = await BlogPost.countDocuments();
+    
+    res.json({ 
+      message: 'Admin dashboard data', 
+      stats: {
+        drawApplications: drawApplicationsCount,
+        paidDrawApplications: paidDrawApplicationsCount,
+        users: usersCount,
+        blogs: blogsCount
+      },
+      user: req.user 
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error adding blog post' });
+    console.error('Error fetching admin dashboard data:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// POST /api/admin/add-feed - Add a news feed endpoint
+// GET - All draw applications
+router.get('/draw-applications', verifyAdmin, async (req, res) => {
+  try {
+    const applications = await DrawApplication.find().sort({ drawEntryDate: -1 });
+    res.json(applications);
+  } catch (error) {
+    console.error('Error fetching draw applications:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// GET - Hero content
+router.get('/hero-content', verifyAdmin, async (req, res) => {
+  try {
+    const heroContent = await HeroContent.findOne({ isActive: true });
+    res.json(heroContent || { title: 'Join Our Lucky Draw!', subtitle: 'Get a chance to win free visa processing by paying only 3000 PKR.' });
+  } catch (error) {
+    console.error('Error fetching hero content:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// POST - Update hero content
+router.post('/hero-content', verifyAdmin, async (req, res) => {
+  try {
+    const { title, subtitle, buttonText } = req.body;
+    
+    // Find existing active hero content
+    let heroContent = await HeroContent.findOne({ isActive: true });
+    
+    if (heroContent) {
+      // Update existing
+      heroContent.title = title;
+      heroContent.subtitle = subtitle;
+      heroContent.buttonText = buttonText;
+      heroContent.updatedAt = Date.now();
+    } else {
+      // Create new
+      heroContent = new HeroContent({
+        title,
+        subtitle,
+        buttonText
+      });
+    }
+    
+    await heroContent.save();
+    res.json({ message: 'Hero content updated successfully', heroContent });
+  } catch (error) {
+    console.error('Error updating hero content:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// POST - Add a blog post
+router.post('/add-blog', verifyAdmin, upload.single('image'), async (req, res) => {
+  try {
+    const { title, content, author } = req.body;
+    
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Title and content are required' });
+    }
+    
+    const blog = new BlogPost({
+      title,
+      content,
+      author: author || req.user.name,
+      imageUrl: req.file ? req.file.path : null
+    });
+    
+    await blog.save();
+    res.status(201).json({ message: 'Blog post added successfully', blog });
+  } catch (error) {
+    console.error('Error adding blog post:', error);
+    res.status(500).json({ message: 'Error adding blog post', error: error.message });
+  }
+});
+
+// GET - All blog posts
+router.get('/blogs', verifyAdmin, async (req, res) => {
+  try {
+    const blogs = await BlogPost.find().sort({ createdAt: -1 });
+    res.json(blogs);
+  } catch (error) {
+    console.error('Error fetching blogs:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// POST - Add a news feed
 router.post('/add-feed', verifyAdmin, async (req, res) => {
   const { title, content } = req.body;
   if (!title || !content) {
@@ -57,25 +164,11 @@ router.post('/add-feed', verifyAdmin, async (req, res) => {
   try {
     const feed = new NewsFeed({ title, content });
     await feed.save();
-    res.status(200).json({ message: 'News feed added successfully', feed });
+    res.status(201).json({ message: 'News feed added successfully', feed });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error adding news feed' });
+    res.status(500).json({ message: 'Error adding news feed', error: error.message });
   }
 });
-
-export const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader)
-    return res.status(401).json({ message: 'No token, authorization denied' });
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Token is not valid' });
-  }
-};
 
 export default router;
