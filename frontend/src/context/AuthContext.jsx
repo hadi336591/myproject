@@ -1,43 +1,41 @@
 import { createContext, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 
-export const AuthContext = createContext({
-  auth: null,
-  login: () => {},
-  logout: () => {},
-});
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    if (token && user) {
-      setAuth({ token, user: JSON.parse(user) });
+    // Check for stored auth data on component mount
+    const storedAuth = localStorage.getItem('auth');
+    if (storedAuth) {
+      try {
+        const parsedAuth = JSON.parse(storedAuth);
+        setAuth(parsedAuth);
+      } catch (error) {
+        console.error('Error parsing stored auth data:', error);
+        localStorage.removeItem('auth');
+      }
     }
+    setLoading(false);
   }, []);
 
-  const login = (data) => {
-    // Expecting data in the shape: { token, user }
-    setAuth(data);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
+  const login = (authData) => {
+    setAuth(authData);
+    localStorage.setItem('auth', JSON.stringify(authData));
   };
 
   const logout = () => {
     setAuth(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('auth');
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ auth, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired,
-};
+export default AuthProvider;

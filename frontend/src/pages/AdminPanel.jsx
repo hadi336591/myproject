@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
 import { 
-  Container, Typography, Box, Paper, Tabs, Tab, Divider,
-  Button, CircularProgress, Alert, TextField, Grid,
+  Container, Typography, Box, Paper, Grid, Divider, 
+  Button, CircularProgress, Alert, Tabs, Tab, 
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Card, CardContent, Chip
+  TextField, Card, CardContent
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -15,20 +15,12 @@ const AdminPanel = () => {
   const { auth } = useContext(AuthContext);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [tabValue, setTabValue] = useState(0);
-  const [stats, setStats] = useState(null);
-  const [drawApplications, setDrawApplications] = useState([]);
-  const [blogs, setBlogs] = useState([]);
-  const [heroSection, setHeroSection] = useState({
+  const [adminData, setAdminData] = useState(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const [heroContent, setHeroContent] = useState({
     title: '',
     subtitle: '',
     buttonText: ''
-  });
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    content: '',
-    author: ''
   });
 
   useEffect(() => {
@@ -38,57 +30,33 @@ const AdminPanel = () => {
       return;
     }
     
-    // Fetch admin data
+    // Fetch admin dashboard data
     const fetchAdminData = async () => {
       try {
-        // Fetch stats
-        const statsResponse = await fetch('http://localhost:5000/api/admin/stats', {
+        const response = await fetch('http://localhost:5000/api/admin', {
           headers: {
             'Authorization': `Bearer ${auth.token}`
           }
         });
         
-        if (statsResponse.ok) {
-          const statsData = await statsResponse.json();
-          setStats(statsData);
-        }
+        const data = await response.json();
         
-        // Fetch draw applications
-        const applicationsResponse = await fetch('http://localhost:5000/api/admin/draw-applications', {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
+        if (response.ok) {
+          setAdminData(data);
+          
+          // Fetch hero content
+          const heroResponse = await fetch('http://localhost:5000/api/admin/hero-content', {
+            headers: {
+              'Authorization': `Bearer ${auth.token}`
+            }
+          });
+          
+          if (heroResponse.ok) {
+            const heroData = await heroResponse.json();
+            setHeroContent(heroData);
           }
-        });
-        
-        if (applicationsResponse.ok) {
-          const applicationsData = await applicationsResponse.json();
-          setDrawApplications(applicationsData);
-        }
-        
-        // Fetch blogs
-        const blogsResponse = await fetch('http://localhost:5000/api/admin/blogs', {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
-          }
-        });
-        
-        if (blogsResponse.ok) {
-          const blogsData = await blogsResponse.json();
-          setBlogs(blogsData);
-        }
-        
-        // Fetch hero section
-        const heroResponse = await fetch('http://localhost:5000/api/admin/hero-section', {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
-          }
-        });
-        
-        if (heroResponse.ok) {
-          const heroData = await heroResponse.json();
-          if (heroData._id) {
-            setHeroSection(heroData);
-          }
+        } else {
+          setError(data.message || 'Failed to fetch admin data');
         }
       } catch (err) {
         console.error('Error fetching admin data:', err);
@@ -102,107 +70,46 @@ const AdminPanel = () => {
   }, [auth, navigate]);
 
   const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
+    setActiveTab(newValue);
   };
 
-  const handleHeroChange = (e) => {
-    setHeroSection({
-      ...heroSection,
+  const handleHeroContentChange = (e) => {
+    setHeroContent({
+      ...heroContent,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleBlogChange = (e) => {
-    setNewBlog({
-      ...newBlog,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const updateHeroSection = async () => {
+  const updateHeroContent = async () => {
     try {
-      setLoading(true);
-      setError('');
-      setSuccess('');
-      
-      const response = await fetch('http://localhost:5000/api/admin/hero-section', {
+      const response = await fetch('http://localhost:5000/api/admin/hero-content', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${auth.token}`
         },
-        body: JSON.stringify(heroSection)
+        body: JSON.stringify(heroContent)
       });
       
-      const data = await response.json();
-      
       if (response.ok) {
-        setSuccess('Hero section updated successfully');
+        alert('Hero content updated successfully');
       } else {
-        setError(data.message || 'Failed to update hero section');
+        const data = await response.json();
+        alert(data.message || 'Failed to update hero content');
       }
     } catch (err) {
-      console.error('Error updating hero section:', err);
-      setError('An error occurred while updating hero section');
-    } finally {
-      setLoading(false);
+      console.error('Error updating hero content:', err);
+      alert('An error occurred while updating hero content');
     }
   };
 
-  const addNewBlog = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      setSuccess('');
-      
-      const response = await fetch('http://localhost:5000/api/admin/blogs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${auth.token}`
-        },
-        body: JSON.stringify(newBlog)
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        setSuccess('Blog added successfully');
-        setNewBlog({
-          title: '',
-          content: '',
-          author: ''
-        });
-        
-        // Refresh blogs list
-        const blogsResponse = await fetch('http://localhost:5000/api/admin/blogs', {
-          headers: {
-            'Authorization': `Bearer ${auth.token}`
-          }
-        });
-        
-        if (blogsResponse.ok) {
-          const blogsData = await blogsResponse.json();
-          setBlogs(blogsData);
-        }
-      } else {
-        setError(data.message || 'Failed to add blog');
-      }
-    } catch (err) {
-      console.error('Error adding blog:', err);
-      setError('An error occurred while adding blog');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading && !stats) {
+  if (loading) {
     return (
       <>
         <Navbar />
         <Container sx={{ py: 8, textAlign: 'center' }}>
           <CircularProgress />
-          <Typography variant="h6" sx={{ mt: 2 }}>
+          <Typographyvariant="h6" sx={{ mt: 2 }}>
             Loading admin panel...
           </Typography>
         </Container>
@@ -225,275 +132,329 @@ const AdminPanel = () => {
           </Alert>
         )}
         
-        {success && (
-          <Alert severity="success" sx={{ mb: 4 }}>
-            {success}
-          </Alert>
-        )}
-        
-        {/* Stats Cards */}
+        {/* Dashboard Stats */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
               <Typography variant="h6" color="primary">
-                {stats?.drawApplications?.total || 0}
+                Draw Applications
               </Typography>
-              <Typography variant="body2">
-                Total Draw Applications
-              </Typography>
-            </Paper>
-          </Grid>
-          
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="h6" color="success.main">
-                {stats?.drawApplications?.paid || 0}
-              </Typography>
-              <Typography variant="body2">
-                Paid Draw Applications
+              <Typography variant="h3">
+                {adminData?.stats?.drawApplications || 0}
               </Typography>
             </Paper>
           </Grid>
           
           <Grid item xs={12} sm={6} md={3}>
             <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="h6" color="info.main">
-                {stats?.users || 0}
+              <Typography variant="h6" color="primary">
+                Paid Applications
               </Typography>
-              <Typography variant="body2">
-                Registered Users
+              <Typography variant="h3">
+                {adminData?.stats?.paidDrawApplications || 0}
               </Typography>
             </Paper>
           </Grid>
           
           <Grid item xs={12} sm={6} md={3}>
             <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-              <Typography variant="h6" color="warning.main">
-                {stats?.blogs || 0}
+              <Typography variant="h6" color="primary">
+                Users
               </Typography>
-              <Typography variant="body2">
-                Published Blogs
+              <Typography variant="h3">
+                {adminData?.stats?.users || 0}
+              </Typography>
+            </Paper>
+          </Grid>
+          
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
+              <Typography variant="h6" color="primary">
+                Blog Posts
+              </Typography>
+              <Typography variant="h3">
+                {adminData?.stats?.blogs || 0}
               </Typography>
             </Paper>
           </Grid>
         </Grid>
         
-        {/* Tabs */}
+        {/* Tabs for different sections */}
         <Paper elevation={3} sx={{ mb: 4 }}>
           <Tabs 
-            value={tabValue} 
+            value={activeTab} 
             onChange={handleTabChange}
             variant="fullWidth"
+            sx={{ borderBottom: 1, borderColor: 'divider' }}
           >
             <Tab label="Draw Applications" />
-            <Tab label="Hero Section" />
-            <Tab label="Blog Management" />
+            <Tab label="Hero Content" />
+            <Tab label="Blog Posts" />
+            <Tab label="News Feed" />
           </Tabs>
           
-          <Divider />
-          
-          {/* Tab Content */}
-          <Box sx={{ p: 3 }}>
-            {/* Draw Applications Tab */}
-            {tabValue === 0 && (
-              <>
-                <Typography variant="h6" gutterBottom>
-                  Lucky Draw Applications
-                </Typography>
-                
-                {drawApplications.length > 0 ? (
-                  <TableContainer>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Date</TableCell>
-                          <TableCell>Name</TableCell>
-                          <TableCell>Passport No</TableCell>
-                          <TableCell>Country</TableCell>
-                          <TableCell>Visa Type</TableCell>
-                          <TableCell>Payment Status</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {drawApplications.map((app) => (
-                          <TableRow key={app._id}>
-                            <TableCell>
-                              {new Date(app.createdAt).toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>{app.fullName}</TableCell>
-                            <TableCell>{app.passportNo}</TableCell>
-                            <TableCell>{app.country}</TableCell>
-                            <TableCell>{app.visaType}</TableCell>
-                            <TableCell>
-                              <Chip 
-                                label={app.paymentStatus ? 'Paid' : 'Pending'} 
-                                color={app.paymentStatus ? 'success' : 'warning'}
-                                size="small"
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                ) : (
-                  <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
-                    No draw applications found.
-                  </Typography>
-                )}
-              </>
-            )}
-            
-            {/* Hero Section Tab */}
-            {tabValue === 1 && (
-              <>
-                <Typography variant="h6" gutterBottom>
-                  Edit Hero Section
-                </Typography>
-                
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Hero Title"
-                      name="title"
-                      value={heroSection.title}
-                      onChange={handleHeroChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Hero Subtitle"
-                      name="subtitle"
-                      value={heroSection.subtitle}
-                      onChange={handleHeroChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Button Text"
-                      name="buttonText"
-                      value={heroSection.buttonText}
-                      onChange={handleHeroChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <Button 
-                      variant="contained" 
-                      onClick={updateHeroSection}
-                      disabled={loading}
-                    >
-                      {loading ? <CircularProgress size={24} /> : 'Update Hero Section'}
-                    </Button>
-                  </Grid>
-                </Grid>
-              </>
-            )}
-            
-            {/* Blog Management Tab */}
-            {tabValue === 2 && (
-              <>
-                <Typography variant="h6" gutterBottom>
-                  Add New Blog
-                </Typography>
-                
-                <Grid container spacing={3} sx={{ mb: 4 }}>
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Blog Title"
-                      name="title"
-                      value={newBlog.title}
-                      onChange={handleBlogChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Author"
-                      name="author"
-                      value={newBlog.author}
-                      onChange={handleBlogChange}
-                      variant="outlined"
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <TextField
-                      fullWidth
-                      label="Blog Content"
-                      name="content"
-                      value={newBlog.content}
-                      onChange={handleBlogChange}
-                      variant="outlined"
-                      multiline
-                      rows={6}
-                    />
-                  </Grid>
-                  
-                  <Grid item xs={12}>
-                    <Button 
-                      variant="contained" 
-                      onClick={addNewBlog}
-                      disabled={loading}
-                    >
-                      {loading ? <CircularProgress size={24} /> : 'Add Blog'}
-                    </Button>
-                  </Grid>
-                </Grid>
-                
-                <Divider sx={{ my: 4 }} />
-                
-                <Typography variant="h6" gutterBottom>
-                  Existing Blogs
-                </Typography>
-                
-                {blogs.length > 0 ? (
-                  <Grid container spacing={3}>
-                    {blogs.map((blog) => (
-                      <Grid item xs={12} key={blog._id}>
-                        <Card variant="outlined">
-                          <CardContent>
-                            <Typography variant="h6" gutterBottom>
-                              {blog.title}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary" gutterBottom>
-                              By {blog.author} • {new Date(blog.createdAt).toLocaleDateString()}
-                            </Typography>
-                            <Typography variant="body2" sx={{ mt: 2 }}>
-                              {blog.content.substring(0, 200)}...
-                </Typography>
-                            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                              <Button size="small" variant="outlined">
-                                Edit
-                              </Button>
-                              <Button size="small" variant="outlined" color="error">
-                                Delete
-                              </Button>
-                            </Box>
-                          </CardContent>
-                        </Card>
-                      </Grid>
+          {/* Draw Applications Tab */}
+          {activeTab === 0 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Draw Applications
+              </Typography>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Passport No</TableCell>
+                      <TableCell>Country</TableCell>
+                      <TableCell>Visa Type</TableCell>
+                      <TableCell>Payment Status</TableCell>
+                      <TableCell>Payment Method</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {adminData?.applications?.map((app) => (
+                      <TableRow key={app._id}>
+                        <TableCell>
+                          {new Date(app.drawEntryDate).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{app.fullName}</TableCell>
+                        <TableCell>{app.passportNo}</TableCell>
+                        <TableCell>{app.country}</TableCell>
+                        <TableCell>{app.visaType}</TableCell>
+                        <TableCell>
+                          {app.paymentStatus ? 'Paid' : 'Pending'}
+                        </TableCell>
+                        <TableCell>
+                          {app.paymentMethod || 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            size="small" 
+                            variant="outlined"
+                            onClick={() => {
+                              // View application details
+                            }}
+                          >
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
                     ))}
+                    {(!adminData?.applications || adminData.applications.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={8} align="center">
+                          No applications found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+          
+          {/* Hero Content Tab */}
+          {activeTab === 1 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Edit Hero Content
+              </Typography>
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Title"
+                        name="title"
+                        value={heroContent.title}
+                        onChange={handleHeroContentChange}
+                        fullWidth
+                        margin="normal"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Subtitle"
+                        name="subtitle"
+                        value={heroContent.subtitle}
+                        onChange={handleHeroContentChange}
+                        fullWidth
+                        margin="normal"
+                        multiline
+                        rows={2}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        label="Button Text"
+                        name="buttonText"
+                        value={heroContent.buttonText}
+                        onChange={handleHeroContentChange}
+                        fullWidth
+                        margin="normal"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Button 
+                        variant="contained" 
+                        onClick={updateHeroContent}
+                      >
+                        Update Hero Content
+                      </Button>
+                    </Grid>
                   </Grid>
-                ) : (
-                  <Typography variant="body1" sx={{ textAlign: 'center', py: 4 }}>
-                    No blogs found.
-                  </Typography>
-                )}
-              </>
-            )}
-          </Box>
+                </CardContent>
+              </Card>
+            </Box>
+          )}
+          
+          {/* Blog Posts Tab */}
+          {activeTab === 2 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Manage Blog Posts
+              </Typography>
+              <Button 
+                variant="contained" 
+                sx={{ mb: 3 }}
+                onClick={() => {
+                  // Open form to add new blog post
+                }}
+              >
+                Add New Blog Post
+              </Button>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Title</TableCell>
+                      <TableCell>Author</TableCell>
+                      <TableCell>Published</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {adminData?.blogs?.map((blog) => (
+                      <TableRow key={blog._id}>
+                        <TableCell>
+                          {new Date(blog.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{blog.title}</TableCell>
+                        <TableCell>{blog.author}</TableCell>
+                        <TableCell>
+                          {blog.isPublished ? 'Yes' : 'No'}
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            size="small" 
+                            variant="outlined"
+                            sx={{ mr: 1 }}
+                            onClick={() => {
+                              // Edit blog post
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            size="small" 
+                            variant="outlined" 
+                            color="error"
+                            onClick={() => {
+                              // Delete blog post
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!adminData?.blogs || adminData.blogs.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={5} align="center">
+                          No blog posts found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+          
+          {/* News Feed Tab */}
+          {activeTab === 3 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Manage News Feed
+              </Typography>
+              <Button 
+                variant="contained" 
+                sx={{ mb: 3 }}
+                onClick={() => {
+                  // Open form to add new news feed
+                }}
+              >
+                Add News Item
+              </Button>
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Date</TableCell>
+                      <TableCell>Title</TableCell>
+                      <TableCell>Published</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {adminData?.newsFeeds?.map((news) => (
+                      <TableRow key={news._id}>
+                        <TableCell>
+                          {new Date(news.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{news.title}</TableCell>
+                        <TableCell>
+                          {news.isPublished ? 'Yes' : 'No'}
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            size="small" 
+                            variant="outlined"
+                            sx={{ mr: 1 }}
+                            onClick={() => {
+                              // Edit news feed
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button 
+                            size="small" 
+                            variant="outlined" 
+                            color="error"
+                            onClick={() => {
+                              // Delete news feed
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {(!adminData?.newsFeeds || adminData.newsFeeds.length === 0) && (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center">
+                          No news items found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
         </Paper>
       </Container>
       <Footer />

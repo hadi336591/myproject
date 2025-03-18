@@ -50,6 +50,16 @@ const Dashboard = () => {
     fetchDashboardData();
   }, [auth, navigate]);
 
+  const getPaymentMethodLabel = (method) => {
+    switch(method) {
+      case 'creditCard': return 'Credit/Debit Card';
+      case 'bankTransfer': return 'Bank Transfer';
+      case 'easypaisa': return 'Easypaisa';
+      case 'jazzCash': return 'Jazz Cash';
+      default: return 'Not specified';
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -141,7 +151,7 @@ const Dashboard = () => {
                 Lucky Draw Applications
               </Typography>
               
-              {dashboardData?.allDrawApplications?.length > 0 ? (
+              {dashboardData?.drawApplications?.length > 0 ? (
                 <TableContainer component={Paper} variant="outlined" sx={{ mb: 4 }}>
                   <Table>
                     <TableHead>
@@ -151,13 +161,15 @@ const Dashboard = () => {
                         <TableCell>Country</TableCell>
                         <TableCell>Visa Type</TableCell>
                         <TableCell>Payment Status</TableCell>
+                        <TableCell>Payment Method</TableCell>
+                        <TableCell>Details</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {dashboardData.allDrawApplications.map((app) => (
+                      {dashboardData.drawApplications.map((app) => (
                         <TableRow key={app._id}>
                           <TableCell>
-                            {new Date(app.createdAt).toLocaleDateString()}
+                            {new Date(app.drawEntryDate).toLocaleDateString()}
                           </TableCell>
                           <TableCell>{app.fullName}</TableCell>
                           <TableCell>{app.country}</TableCell>
@@ -168,6 +180,18 @@ const Dashboard = () => {
                               color={app.paymentStatus ? 'success' : 'warning'}
                               size="small"
                             />
+                          </TableCell>
+                          <TableCell>
+                            {app.paymentStatus ? getPaymentMethodLabel(app.paymentMethod) : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Button 
+                              size="small" 
+                              variant="outlined"
+                              onClick={() => navigate(`/draw-application/${app._id}`)}
+                            >
+                              View
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))}
@@ -196,7 +220,7 @@ const Dashboard = () => {
                 Visa Applications
               </Typography>
               
-              {dashboardData?.visaApplication ? (
+              {dashboardData?.application ? (
                 <Card variant="outlined" sx={{ mb: 2 }}>
                   <CardContent>
                     <Grid container spacing={2}>
@@ -205,7 +229,7 @@ const Dashboard = () => {
                           Name
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                          {dashboardData.visaApplication.fullName}
+                          {dashboardData.application.fullName}
                         </Typography>
                       </Grid>
                       
@@ -214,7 +238,7 @@ const Dashboard = () => {
                           Email
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                          {dashboardData.visaApplication.email}
+                          {dashboardData.application.email}
                         </Typography>
                       </Grid>
                       
@@ -223,7 +247,7 @@ const Dashboard = () => {
                           Visa Type
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                          {dashboardData.visaApplication.visaType}
+                          {dashboardData.application.visaType}
                         </Typography>
                       </Grid>
                       
@@ -232,8 +256,8 @@ const Dashboard = () => {
                           Payment Status
                         </Typography>
                         <Chip 
-                          label={dashboardData.visaApplication.paymentStatus ? 'Paid' : 'Pending'} 
-                          color={dashboardData.visaApplication.paymentStatus ? 'success' : 'warning'}
+                          label={dashboardData.application.paymentStatus ? 'Paid' : 'Pending'} 
+                          color={dashboardData.application.paymentStatus ? 'success' : 'warning'}
                           size="small"
                         />
                       </Grid>

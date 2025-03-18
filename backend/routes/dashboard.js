@@ -10,15 +10,14 @@ router.get('/', verifyToken, async (req, res) => {
     // Get the latest visa application
     const application = await VisaApplication.findOne({ userId: req.user.id }).sort({ createdAt: -1 });
     
-    // Get draw applications for the user
+    // Get all draw applications for the user
     const drawApplications = await DrawApplication.find({ userId: req.user.id }).sort({ drawEntryDate: -1 });
     
     res.json({ 
       message: 'Dashboard data fetched', 
       user: req.user, 
       application, 
-      drawApplications,
-      draw: { drawUpdate: 'Draw status updated here.' } 
+      drawApplications
     });
   } catch (err) {
     console.error('Error fetching dashboard data:', err);

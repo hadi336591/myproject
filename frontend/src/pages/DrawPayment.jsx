@@ -1,7 +1,8 @@
 import { useState, useEffect, useContext } from 'react';
 import { 
   Container, Typography, Button, Box, TextField, Paper, 
-  Grid, CircularProgress, Alert, Divider 
+  Grid, CircularProgress, Alert, Divider, Radio, RadioGroup,
+  FormControlLabel, FormControl, FormLabel, Collapse
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -16,11 +17,21 @@ const DrawPayment = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [applicationId, setApplicationId] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('creditCard');
   const [paymentInfo, setPaymentInfo] = useState({
+    // Credit Card
     cardNumber: '',
     expiry: '',
     cvv: '',
-    name: ''
+    name: '',
+    // Bank Transfer
+    accountNumber: '',
+    bankName: '',
+    transferDate: '',
+    referenceNumber: '',
+    // Mobile Payment
+    mobileNumber: '',
+    transactionId: ''
   });
 
   useEffect(() => {
@@ -45,6 +56,10 @@ const DrawPayment = () => {
     });
   };
 
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+  };
+
   const handlePayment = async () => {
     if (!applicationId) {
       setError('No application found');
@@ -55,25 +70,28 @@ const DrawPayment = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/payment', {
+      const response = await fetch('http://localhost:5000/api/payment/draw-application', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${auth.token}`
         },
         body: JSON.stringify({
+          applicationId,
           amount: 3000,
           currency: 'PKR',
-          paymentType: 'draw',
-          applicationId,
-          paymentInfo
+          paymentMethod,
+          paymentInfo: {
+            ...paymentInfo,
+            paymentMethod
+          }
         }),
       });
       
       const data = await response.json();
       
       if (response.ok) {
-        setSuccess('Payment successful! ' + (data.drawResult?.message || ''));
+        setSuccess('Payment successful! ' + (data.drawResult || ''));
         
         // Clear application ID from session storage
         sessionStorage.removeItem('drawApplicationId');
@@ -122,50 +140,179 @@ const DrawPayment = () => {
             </Alert>
           )}
           
+          <FormControl component="fieldset" sx={{ mb: 3, width: '100%' }}>
+            <FormLabel component="legend">Select Payment Method</FormLabel>
+            <RadioGroup
+              aria-label="payment-method"
+              name="payment-method"
+              value={paymentMethod}
+              onChange={handlePaymentMethodChange}
+            >
+              <FormControlLabel value="creditCard" control={<Radio />} label="Credit/Debit Card" />
+              <FormControlLabel value="bankTransfer" control={<Radio />} label="Bank Transfer" />
+              <FormControlLabel value="easypaisa" control={<Radio />} label="Easypaisa" />
+              <FormControlLabel value="jazzCash" control={<Radio />} label="Jazz Cash" />
+            </RadioGroup>
+          </FormControl>
+          
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField
-              label="Name on Card"
-              name="name"
-              value={paymentInfo.name}
-              onChange={handlePaymentChange}
-              fullWidth
-              required
-            />
-            <TextField
-              label="Card Number"
-              name="cardNumber"
-              value={paymentInfo.cardNumber}
-              onChange={handlePaymentChange}
-              fullWidth
-              required
-              placeholder="1234 5678 9012 3456"
-            />
+            {/* Credit Card Form */}
+            <Collapse in={paymentMethod === 'creditCard'}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField
+                  label="Name on Card"
+                  name="name"
+                  value={paymentInfo.name}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                />
+                <TextField
+                  label="Card Number"
+                  name="cardNumber"
+                  value={paymentInfo.cardNumber}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                  placeholder="1234 5678 9012 3456"
+                />
+                
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Expiry Date (MM/YY)"
+                      name="expiry"
+                      value={paymentInfo.expiry}
+                      onChange={handlePaymentChange}
+                      fullWidth
+                      required
+                      placeholder="MM/YY"
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="CVV"
+                      name="cvv"
+                      value={paymentInfo.cvv}
+                      onChange={handlePaymentChange}
+                      fullWidth
+                      required
+                      type="password"
+                      placeholder="123"
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+            </Collapse>
             
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
+            {/* Bank Transfer Form */}
+            <Collapse in={paymentMethod === 'bankTransfer'}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  Please transfer 3000 PKR to our bank account and provide the details below:
+                  <br />
+                  Account Title: Visa Services
+                  <br />
+                  Account Number: 12345678901234
+                  <br />
+                  Bank: HBL Bank
+                </Alert>
                 <TextField
-                  label="Expiry Date (MM/YY)"
-                  name="expiry"
-                  value={paymentInfo.expiry}
+                  label="Your Bank Name"
+                  name="bankName"
+                  value={paymentInfo.bankName}
                   onChange={handlePaymentChange}
                   fullWidth
                   required
-                  placeholder="MM/YY"
                 />
-              </Grid>
-              <Grid item xs={6}>
                 <TextField
-                  label="CVV"
-                  name="cvv"
-                  value={paymentInfo.cvv}
+                  label="Your Account Number"
+                  name="accountNumber"
+                  value={paymentInfo.accountNumber}
                   onChange={handlePaymentChange}
                   fullWidth
                   required
-                  type="password"
-                  placeholder="123"
                 />
-              </Grid>
-            </Grid>
+                <TextField
+                  label="Transfer Date"
+                  name="transferDate"
+                  type="date"
+                  value={paymentInfo.transferDate}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                  InputLabelProps={{ shrink: true }}
+                />
+                <TextField
+                  label="Reference/Transaction Number"
+                  name="referenceNumber"
+                  value={paymentInfo.referenceNumber}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                />
+              </Box>
+            </Collapse>
+            
+            {/* Easypaisa Form */}
+            <Collapse in={paymentMethod === 'easypaisa'}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  Please send 3000 PKR to our Easypaisa account and provide the details below:
+                  <br />
+                  Account Title: Visa Services
+                  <br />
+                  Mobile Number: 03001234567
+                </Alert>
+                <TextField
+                  label="Your Mobile Number"
+                  name="mobileNumber"
+                  value={paymentInfo.mobileNumber}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                  placeholder="03XX-XXXXXXX"
+                />
+                <TextField
+                  label="Transaction ID"
+                  name="transactionId"
+                  value={paymentInfo.transactionId}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                />
+              </Box>
+            </Collapse>
+            
+            {/* Jazz Cash Form */}
+            <Collapse in={paymentMethod === 'jazzCash'}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  Please send 3000 PKR to our Jazz Cash account and provide the details below:
+                  <br />
+                  Account Title: Visa Services
+                  <br />
+                  Mobile Number: 03001234567
+                </Alert>
+                <TextField
+                  label="Your Mobile Number"
+                  name="mobileNumber"
+                  value={paymentInfo.mobileNumber}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                  placeholder="03XX-XXXXXXX"
+                />
+                <TextField
+                  label="Transaction ID"
+                  name="transactionId"
+                  value={paymentInfo.transactionId}
+                  onChange={handlePaymentChange}
+                  fullWidth
+                  required
+                />
+              </Box>
+            </Collapse>
             
             <Button
               variant="contained"

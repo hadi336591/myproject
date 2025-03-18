@@ -1,15 +1,24 @@
 import { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { Navigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { CircularProgress, Box } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
-  const { auth } = useContext(AuthContext);
-  return auth ? children : <Navigate to="/login" />;
-};
+  const { auth, loading } = useContext(AuthContext);
 
-ProtectedRoute.propTypes = {
-  children: PropTypes.node.isRequired,
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!auth) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
 };
 
 export default ProtectedRoute;

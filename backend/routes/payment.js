@@ -42,6 +42,7 @@ router.post(
   verifyToken,
   [
     body('applicationId').notEmpty().withMessage('Application ID is required'),
+    body('paymentMethod').notEmpty().withMessage('Payment method is required'),
     body('paymentInfo').isObject().withMessage('Payment information is required'),
   ],
   async (req, res) => {
@@ -51,7 +52,7 @@ router.post(
     }
 
     try {
-      const { applicationId, paymentInfo } = req.body;
+      const { applicationId, paymentMethod, paymentInfo } = req.body;
       
       // Find the application
       const application = await DrawApplication.findById(applicationId);
@@ -64,9 +65,12 @@ router.post(
         return res.status(403).json({ message: 'Not authorized to pay for this application' });
       }
       
-      // Process payment (in a real app, you would integrate with a payment gateway)
-      // For demo purposes, we'll just mark it as paid
+      // Store payment method and details
+      application.paymentMethod = paymentMethod;
+      application.paymentDetails = paymentInfo;
       application.paymentStatus = true;
+      application.paymentDate = new Date();
+      
       await application.save();
       
       // Determine if the user won the draw (20% chance)

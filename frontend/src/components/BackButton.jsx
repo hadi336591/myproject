@@ -1,13 +1,18 @@
-import { IconButton } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const BackButton = () => {
   const navigate = useNavigate();
+
   return (
-    <IconButton onClick={() => navigate(-1)} sx={{ color: 'white' }}>
-      <ArrowBackIcon />
-    </IconButton>
+    <Button 
+      startIcon={<ArrowBackIcon />} 
+      onClick={() => navigate(-1)}
+      sx={{ mb: 2 }}
+    >
+      Back
+    </Button>
   );
 };
 
