@@ -84,7 +84,7 @@ const HomePage = () => {
       <Box 
         sx={{ 
           position: 'relative',
-          height: '70vh',
+          height: '80vh',
           overflow: 'hidden',
         }}
       >
@@ -108,7 +108,7 @@ const HomePage = () => {
           <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 2 }}>
             {heroContent.title}
           </Typography>
-          <Typography variant="body1" sx={{ mt: 1 }}>
+          <Typography variant="h6" sx={{ mt: 1, mb: 3, maxWidth: '800px', textAlign: 'center' }}>
             {heroContent.subtitle}
           </Typography>
           <Box sx={{ mt: 2 }}>
@@ -120,7 +120,7 @@ const HomePage = () => {
             size="large"
             onClick={handleJoinDraw}
             sx={{ 
-              mt: 3,
+              mt: 4,
               px: 4, 
               py: 1.5, 
               fontSize: '1.1rem',
@@ -135,6 +135,9 @@ const HomePage = () => {
           </Button>
         </Box>
       </Box>
+      
+      {/* Spacer */}
+      <Box sx={{ height: '2rem' }} />
       
       {/* Apply Section */}
       <Box sx={{ backgroundColor: '#303030', py: 6 }}>
@@ -154,6 +157,9 @@ const HomePage = () => {
           </Button>
         </Container>
       </Box>
+      
+      {/* Spacer */}
+      <Box sx={{ height: '2rem' }} />
       
       {/* Countries Grid Section */}
       <Box sx={{ py: 8, backgroundColor: '#F8F9FA' }}>
@@ -206,6 +212,9 @@ const HomePage = () => {
           </Grid>
         </Container>
       </Box>
+      
+      {/* Spacer */}
+      <Box sx={{ height: '2rem' }} />
       
       {/* Services Section */}
       <Container sx={{ py: 8 }}>
@@ -285,11 +294,20 @@ const HomePage = () => {
         </Grid>
       </Container>
       
+      {/* Spacer */}
+      <Box sx={{ height: '2rem' }} />
+      
       {/* Visa Categories Section */}
       <VisaCategories />
       
+      {/* Spacer */}
+      <Box sx={{ height: '2rem' }} />
+      
       {/* Testimonials Section */}
       <Testimonials />
+      
+      {/* Spacer */}
+      <Box sx={{ height: '2rem' }} />
       
       {/* News Feed Section */}
       <Box sx={{ bgcolor: 'background.default', py: 8 }}>

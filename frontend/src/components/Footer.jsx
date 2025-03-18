@@ -1,149 +1,102 @@
-import { Box, Container, Grid, TextField, Button, IconButton, Typography } from '@mui/material';
-import { Facebook, Twitter, Instagram, LinkedIn, RssFeed, Email, AdminPanelSettings } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
-import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { Box, Container, Grid, Typography, Link, IconButton } from '@mui/material';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
 
 const Footer = () => {
-  const { auth } = useContext(AuthContext);
-  const isAdmin = auth && auth.user && auth.user.role === 'admin';
-
   return (
-    <Box sx={{ 
-      backgroundColor: '#001f3f', 
-      color: 'white', 
-      py: 6,
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <Box sx={{ bgcolor: '#303030', color: 'white', pt: 6, pb: 3 }}>
       <Container maxWidth="lg">
-        {/* Logo and Description */}
-        <Grid container spacing={4} justifyContent="center" textAlign="center">
-          <Grid item xs={12} md={3}>
-            <Box component="img" src="/logo.png" alt="Nile Consultant" sx={{ width: 200, mb: 2 }} />
-            <Typography variant="body2" sx={{ mb: 3 }}>
-              Make your dreams come true. Join our team of experts for Visa advice and visit the most beautiful places around the world. We offer Visa consultancy, Tourism Visa & Immigration Services.
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Typography variant="h6" gutterBottom>
+              Visa Services
             </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mb: 2 }}>
-              <IconButton color="inherit" size="small">
-                <Twitter />
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              We provide comprehensive visa services to make your travel hassle-free. Our expert team ensures smooth processing of your visa applications.
+            </Typography>
+            <Box>
+              <IconButton color="inherit" aria-label="facebook">
+                <FacebookIcon />
               </IconButton>
-              <IconButton color="inherit" size="small">
-                <Facebook />
+              <IconButton color="inherit" aria-label="twitter">
+                <TwitterIcon />
               </IconButton>
-              <IconButton color="inherit" size="small">
-                <Instagram />
+              <IconButton color="inherit" aria-label="instagram">
+                <InstagramIcon />
               </IconButton>
-              <IconButton color="inherit" size="small">
-                <LinkedIn />
+              <IconButton color="inherit" aria-label="linkedin">
+                <LinkedInIcon />
               </IconButton>
             </Box>
           </Grid>
-
-          {/* Quick Links */}
-          <Grid item xs={12} md={3}>
+          
+          <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
               Quick Links
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Link to="/about" style={{ color: 'white', textDecoration: 'none' }}>About Us</Link>
-              <Link to="/faqs" style={{ color: 'white', textDecoration: 'none' }}>FAQs</Link>
-              <Link to="/team" style={{ color: 'white', textDecoration: 'none' }}>Our Team</Link>
-              <Link to="/services" style={{ color: 'white', textDecoration: 'none' }}>Services</Link>
-              <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact Us</Link>
-              {isAdmin && (
-                <Link to="/admin" style={{ color: '#ff9800', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <AdminPanelSettings fontSize="small" />
-                  Admin Panel
-                </Link>
-              )}
-            </Box>
+            <Link href="/" color="inherit" display="block" sx={{ mb: 1 }}>
+              Home
+            </Link>
+            <Link href="/apply" color="inherit" display="block" sx={{ mb: 1 }}>
+              Apply for Visa
+            </Link>
+            <Link href="/draw-application" color="inherit" display="block" sx={{ mb: 1 }}>
+              Lucky Draw
+            </Link>
+            <Link href="/blog" color="inherit" display="block" sx={{ mb: 1 }}>
+              Blog
+            </Link>
+            <Link href="/contact" color="inherit" display="block" sx={{ mb: 1 }}>
+              Contact Us
+            </Link>
           </Grid>
-
-          {/* Services */}
-          <Grid item xs={12} md={3}>
+          
+          <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
-              Services
+              Visa Types
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Link to="/visas/business" style={{ color: 'white', textDecoration: 'none' }}>Business Visas</Link>
-              <Link to="/visas/working" style={{ color: 'white', textDecoration: 'none' }}>Working Visas</Link>
-              <Link to="/visas/immigration" style={{ color: 'white', textDecoration: 'none' }}>Immigration Visas</Link>
-              <Link to="/visas/tourist" style={{ color: 'white', textDecoration: 'none' }}>Tourists Visas</Link>
-            </Box>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Tourist Visa
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Business Visa
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Student Visa
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Work Visa
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Immigration
+            </Typography>
           </Grid>
-
-          {/* Newsletter */}
-          <Grid item xs={12} md={3}>
+          
+          <Grid item xs={12} sm={6} md={3}>
             <Typography variant="h6" gutterBottom>
-              Newsletter Signup
+              Contact Info
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              Enter your email address to get latest updates and offers from us.
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              123 Main Street, Lahore, Pakistan
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-              <TextField
-                size="small"
-                placeholder="Email address"
-                sx={{
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  input: { color: 'white' },
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': { borderColor: 'rgba(255,255,255,0.3)' },
-                  }
-                }}
-              />
-              <Button 
-                variant="contained" 
-                sx={{ 
-                  backgroundColor: '#ff9800',
-                  '&:hover': { backgroundColor: '#f57c00' }
-                }}
-              >
-                →
-              </Button>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-              <IconButton color="inherit" size="small">
-                <RssFeed />
-              </IconButton>
-              <IconButton color="inherit" size="small">
-                <Email />
-              </IconButton>
-              <IconButton color="inherit" size="small">
-                <Facebook />
-              </IconButton>
-              <IconButton color="inherit" size="small">
-                <Twitter />
-              </IconButton>
-            </Box>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Phone: +92 300 1234567
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Email: info@visaservices.com
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Hours: Mon-Fri 9:00 AM - 5:00 PM
+            </Typography>
           </Grid>
         </Grid>
-
-        {/* Bottom Links */}
-        <Box sx={{ 
-          mt: 4, 
-          pt: 3, 
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          textAlign: 'center'
-        }}>
-          <Typography variant="body2" sx={{ width: { xs: '100%', md: 'auto' }, mb: { xs: 2, md: 0 } }}>
-            © 2023 NILE CONSULTANT Immigration Expert (Pvt) Ltd. All rights reserved.
+        
+        <Box sx={{ borderTop: '1px solid rgba(255,255,255,0.1)', pt: 3, mt: 3, textAlign: 'center' }}>
+          <Typography variant="body2">
+            &copy; {new Date().getFullYear()} Visa Services. All rights reserved.
           </Typography>
-          <Box sx={{ 
-            display: 'flex', 
-            gap: 3,
-            width: { xs: '100%', md: 'auto' },
-            justifyContent: { xs: 'center', md: 'flex-end' }
-          }}>
-            <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
-            <Link to="/about" style={{ color: 'white', textDecoration: 'none' }}>About Us</Link>
-            <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact Us</Link>
-          </Box>
         </Box>
       </Container>
     </Box>

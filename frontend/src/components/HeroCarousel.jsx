@@ -13,6 +13,10 @@ const slides = [
   {
     url: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg',
     title: 'Spain'
+  },
+  {
+    url: 'https://nileconsultant.com/wp-content/uploads/2020/07/germany.jpg',
+    title: 'Germany'
   }
 ];
 
@@ -39,7 +43,7 @@ const HeroCarousel = () => {
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
           zIndex: 1
         }
       }}
@@ -54,7 +58,7 @@ const HeroCarousel = () => {
             width: '100%',
             height: '100%',
             opacity: index === currentSlide ? 1 : 0,
-            transition: 'opacity 1s ease-in-out',
+            transition: 'opacity 1.5s ease-in-out',
             '& img': {
               width: '100%',
               height: '100%',
