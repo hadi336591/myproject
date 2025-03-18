@@ -32,7 +32,7 @@ const DrawApplicationForm = () => {
 
   // Check if user is logged in
   if (!auth) {
-    navigate('/login');
+    navigate('/login', { state: { from: '/draw-application' } });
     return null;
   }
 

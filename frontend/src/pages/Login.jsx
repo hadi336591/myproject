@@ -1,22 +1,39 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { 
   Container, Typography, Button, Box, TextField, Paper, 
   CircularProgress, Alert, Link as MuiLink 
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const location = useLocation();
+  const { login, auth } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+
+  // Get the redirect path from location state or default to dashboard
+  const from = location.state?.from || '/dashboard';
+
+  // If user is already logged in, redirect
+  useEffect(() => {
+    if (auth) {
+      if (auth.user.role === 'admin') {
+        navigate('/admin');
+      } else if (from) {
+        navigate(from);
+      } else {
+        navigate('/dashboard');
+      }
+    }
+  }, [auth, navigate, from]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -51,9 +68,11 @@ const Login = () => {
         // Store auth data in context
         login(data);
         
-        // Redirect based on user role
+        // Redirect based on user role or the 'from' path
         if (data.user.role === 'admin') {
           navigate('/admin');
+        } else if (from) {
+          navigate(from);
         } else {
           navigate('/dashboard');
         }
@@ -66,6 +85,14 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Special case for admin login
+  const handleAdminLogin = () => {
+    setFormData({
+      email: 'hadibinkhalid@hotmail.com',
+      password: '12345678'
+    });
   };
 
   return (
@@ -122,6 +149,17 @@ const Login = () => {
                 Don't have an account?{' '}
                 <MuiLink component={Link} to="/register">
                   Register here
+                </MuiLink>
+              </Typography>
+              
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <MuiLink 
+                  component="button" 
+                  variant="body2"
+                  onClick={handleAdminLogin}
+                  sx={{ textDecoration: 'none' }}
+                >
+                  Admin Login
                 </MuiLink>
               </Typography>
             </Box>

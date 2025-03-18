@@ -1,73 +1,71 @@
-
-import Carousel from 'react-material-ui-carousel';
+import { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 
-const carouselItems = [
+const slides = [
   {
-    image: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg',
-    title: 'Explore Spain',
-    description: 'Experience the vibrant culture and stunning architecture of Spain.',
+    url: 'https://nileconsultant.com/wp-content/uploads/2020/07/immigration-1.jpg',
+    title: 'United States'
   },
   {
-    image: 'https://nileconsultant.com/wp-content/uploads/2020/07/immigration-1.jpg',
-    title: 'Discover the United States',
-    description: 'Unlock opportunities in the land of dreams.',
+    url: 'https://nileconsultant.com/wp-content/uploads/2020/08/immigration-2.jpg',
+    title: 'Canada'
   },
   {
-    image: 'https://nileconsultant.com/wp-content/uploads/2020/08/immigration-2.jpg',
-    title: 'Visit Canada',
-    description: 'Enjoy the breathtaking landscapes and welcoming communities.',
-  },
-  {
-    image: 'https://nileconsultant.com/wp-content/uploads/2020/07/germany.jpg',
-    title: 'Travel to Germany',
-    description: 'Dive into the rich history and modern innovation of Germany.',
-  },
-  {
-    image: 'https://nileconsultant.com/wp-content/uploads/2020/07/france.jpg',
-    title: 'Experience France',
-    description: 'Indulge in the art, cuisine, and romance of France.',
-  },
+    url: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg',
+    title: 'Spain'
+  }
 ];
 
 const HeroCarousel = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <Carousel
-      indicators={true}
-      animation="fade"
-      navButtonsAlwaysVisible={true}
+    <Box
       sx={{
-        height: '70vh',
-        '& .MuiPaper-root': {
-          backgroundColor: 'transparent',
-        },
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          zIndex: 1
+        }
       }}
     >
-      {carouselItems.map((item, index) => (
+      {slides.map((slide, index) => (
         <Box
           key={index}
           sx={{
-            height: '70vh',
-            backgroundImage: `url(${item.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            color: 'white',
-            textShadow: '2px 2px 4px rgba(0, 0, 0, 0.7)',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            opacity: index === currentSlide ? 1 : 0,
+            transition: 'opacity 1s ease-in-out',
+            '& img': {
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover'
+            }
           }}
         >
-          {/* Removed text content */}
-          {item.children && (
-            <Box sx={{ mt: 2 }}>
-              {item.children}
-            </Box>
-          )}
+          <img src={slide.url} alt={slide.title} />
         </Box>
       ))}
-    </Carousel>
+    </Box>
   );
 };
 
