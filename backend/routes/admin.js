@@ -51,6 +51,15 @@ router.get('/', verifyAdmin, async (req, res) => {
     const usersCount = await User.countDocuments();
     const blogsCount = await BlogPost.countDocuments();
     
+    // Get all draw applications
+    const applications = await DrawApplication.find().sort({ drawEntryDate: -1 });
+    
+    // Get all blogs
+    const blogs = await BlogPost.find().sort({ createdAt: -1 });
+    
+    // Get all news feeds
+    const newsFeeds = await NewsFeed.find().sort({ createdAt: -1 });
+    
     res.json({ 
       message: 'Admin dashboard data', 
       stats: {
@@ -59,6 +68,9 @@ router.get('/', verifyAdmin, async (req, res) => {
         users: usersCount,
         blogs: blogsCount
       },
+      applications,
+      blogs,
+      newsFeeds,
       user: req.user 
     });
   } catch (error) {
@@ -82,7 +94,7 @@ router.get('/draw-applications', verifyAdmin, async (req, res) => {
 router.get('/hero-content', verifyAdmin, async (req, res) => {
   try {
     const heroContent = await HeroContent.findOne({ isActive: true });
-    res.json(heroContent || { title: 'Join Our Lucky Draw!', subtitle: 'Get a chance to win free visa processing by paying only 3000 PKR.' });
+    res.json(heroContent || { title: 'Join Our Lucky Draw!', subtitle: 'Get a chance to win free visa processing by paying only 3000 PKR.', buttonText: 'Join Draw Now' });
   } catch (error) {
     console.error('Error fetching hero content:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

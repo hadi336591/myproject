@@ -1,7 +1,7 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { 
-  Container, Box, Typography, TextField, Button, MenuItem, 
-  Paper, Grid, CircularProgress, Alert, Divider 
+  Container, Typography, Button, Box, TextField, Paper, 
+  Grid, CircularProgress, Alert, MenuItem, Divider 
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -9,111 +9,114 @@ import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import { AuthContext } from '../context/AuthContext';
 
-
-const countries = [
-  'Spain', 'United States', 'Canada', 'Germany', 'France', 'Türkiye'
-];
-
-const visaTypes = [
-  'Tourist', 'Business', 'Work', 'Student', 'Immigration'
-];
-
 const DrawApplicationForm = () => {
   const navigate = useNavigate();
   const { auth } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  
-  // Form data state
   const [formData, setFormData] = useState({
     fullName: '',
     fatherName: '',
     passportNo: '',
     country: '',
-    visaType: '',
+    visaType: ''
   });
-  
-  // File state
   const [files, setFiles] = useState({
     passportPhoto: null,
     passportScan: null
   });
-  
-  // File preview URLs
-  const [previews, setPreviews] = useState({
-    passportPhoto: null,
-    passportScan: null
+  const [fileErrors, setFileErrors] = useState({
+    passportPhoto: '',
+    passportScan: ''
   });
-  
-  // Handle form input changes
-  const handleChange = (e) => {
+
+  useEffect(() => {
+    // Check if user is logged in
+    if (!auth) {
+      navigate('/login', { state: { from: '/draw-application' } });
+    }
+  }, [auth, navigate]);
+
+  const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-  
-  // Handle file input changes
+
   const handleFileChange = (e) => {
-    const { name, files: fileList } = e.target;
+    const { name, files: selectedFiles } = e.target;
     
-    if (fileList && fileList[0]) {
-      // Update file state
-      setFiles({
-        ...files,
-        [name]: fileList[0]
+    if (selectedFiles.length > 0) {
+      const file = selectedFiles[0];
+      
+      // Check file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        setFileErrors({
+          ...fileErrors,
+          [name]: 'Only JPG, PNG, and PDF files are allowed'
+        });
+        return;
+      }
+      
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setFileErrors({
+          ...fileErrors,
+          [name]: 'File size must be less than 5MB'
+        });
+        return;
+      }
+      
+      // Clear any previous errors
+      setFileErrors({
+        ...fileErrors,
+        [name]: ''
       });
       
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(fileList[0]);
-      setPreviews({
-        ...previews,
-        [name]: previewUrl
+      // Set the file
+      setFiles({
+        ...files,
+        [name]: file
       });
     }
   };
-  
-  // Handle form submission
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check if user is logged in
-    if (!auth) {
-      setError('Please log in to submit an application');
+    // Validate form
+    if (!formData.fullName || !formData.fatherName || !formData.passportNo || 
+        !formData.country || !formData.visaType || !files.passportPhoto || !files.passportScan) {
+      setError('Please fill all required fields and upload all required documents');
       return;
     }
     
-    // Validate files
-    if (!files.passportPhoto || !files.passportScan) {
-      setError('Please upload both passport photo and passport scan');
+    // Check for file errors
+    if (fileErrors.passportPhoto || fileErrors.passportScan) {
+      setError('Please fix the file errors before submitting');
       return;
     }
     
     setLoading(true);
     setError('');
     
+    // Create form data for file upload
+    const submitData = new FormData();
+    submitData.append('fullName', formData.fullName);
+    submitData.append('fatherName', formData.fatherName);
+    submitData.append('passportNo', formData.passportNo);
+    submitData.append('country', formData.country);
+    submitData.append('visaType', formData.visaType);
+    submitData.append('passportPhoto', files.passportPhoto);
+    submitData.append('passportScan', files.passportScan);
+    
     try {
-      // Create form data for file upload
-      const submitData = new FormData();
-      
-      // Add text fields
-      Object.keys(formData).forEach(key => {
-        submitData.append(key, formData[key]);
-      });
-      
-      // Add files
-      submitData.append('passportPhoto', files.passportPhoto);
-      submitData.append('passportScan', files.passportScan);
-      
-      // Get token from auth context
-      const token = auth.token;
-      
-      // Submit application
       const response = await fetch('http://localhost:5000/api/draw-application', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${auth.token}`
         },
         body: submitData
       });
@@ -121,15 +124,11 @@ const DrawApplicationForm = () => {
       const data = await response.json();
       
       if (response.ok) {
-        setSuccess('Application submitted successfully!');
-        
         // Store application ID in session storage for payment
-        sessionStorage.setItem('drawApplicationId', data.application._id);
+        sessionStorage.setItem('drawApplicationId', data.applicationId);
         
-        // Redirect to payment page after a short delay
-        setTimeout(() => {
-          navigate('/draw-payment');
-        }, 1500);
+        // Redirect to payment page
+        navigate('/draw-payment');
       } else {
         setError(data.message || 'Failed to submit application');
       }
@@ -140,19 +139,28 @@ const DrawApplicationForm = () => {
       setLoading(false);
     }
   };
-  
+
+  if (!auth) {
+    return null; // Don't render anything if not authenticated (will redirect in useEffect)
+  }
+
   return (
     <>
       <Navbar />
-      <Container maxWidth="md" sx={{ py: 2 }}>
+      <Container maxWidth="sm" sx={{ py: 2 }}>
         <BackButton />
       </Container>
       <Container maxWidth="md" sx={{ py: 4 }}>
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-          <Typography variant="h4" align="center" sx={{ mb: 3 }}>
-            Lucky Draw Application Form
+          <Typography variant="h4" align="center" sx={{ mb: 2 }}>
+            Lucky Draw Application
           </Typography>
-          <Divider sx={{ mb: 4 }} />
+          <Divider sx={{ mb: 3 }} />
+          
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            Fill out this form to enter our lucky draw for a chance to win free visa processing.
+            After submission, you&apos;ll be directed to the payment page to pay the entry fee of 3000 PKR.
+          </Typography>
           
           {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
@@ -160,154 +168,125 @@ const DrawApplicationForm = () => {
             </Alert>
           )}
           
-          {success && (
-            <Alert severity="success" sx={{ mb: 3 }}>
-              {success}
-            </Alert>
-          )}
-          
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
-                  fullWidth
-                  label="Full Name (as on passport)"
+                  label="Full Name"
                   name="fullName"
                   value={formData.fullName}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
+                  fullWidth
                   required
-                  variant="outlined"
                 />
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
-                  fullWidth
                   label="Father's Name"
                   name="fatherName"
                   value={formData.fatherName}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
+                  fullWidth
                   required
-                  variant="outlined"
                 />
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
-                  fullWidth
                   label="Passport Number"
                   name="passportNo"
                   value={formData.passportNo}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
+                  fullWidth
                   required
-                  variant="outlined"
                 />
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   select
-                  fullWidth
-                  label="Country for Apply"
+                  label="Country"
                   name="country"
                   value={formData.country}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
+                  fullWidth
                   required
-                  variant="outlined"
                 >
-                  <MenuItem value="">Select Country</MenuItem>
-                  {countries.map((country) => (
-                    <MenuItem key={country} value={country}>
-                      {country}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="USA">USA</MenuItem>
+                  <MenuItem value="UK">UK</MenuItem>
+                  <MenuItem value="Canada">Canada</MenuItem>
+                  <MenuItem value="Australia">Australia</MenuItem>
+                  <MenuItem value="Schengen">Schengen</MenuItem>
+                  <MenuItem value="UAE">UAE</MenuItem>
+                  <MenuItem value="Saudi Arabia">Saudi Arabia</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
                 </TextField>
               </Grid>
               
               <Grid item xs={12}>
                 <TextField
                   select
-                  fullWidth
                   label="Visa Type"
                   name="visaType"
                   value={formData.visaType}
-                  onChange={handleChange}
+                  onChange={handleInputChange}
+                  fullWidth
                   required
-                  variant="outlined"
                 >
-                  <MenuItem value="">Select Visa Type</MenuItem>
-                  {visaTypes.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
+                  <MenuItem value="Tourist">Tourist</MenuItem>
+                  <MenuItem value="Business">Business</MenuItem>
+                  <MenuItem value="Student">Student</MenuItem>
+                  <MenuItem value="Work">Work</MenuItem>
+                  <MenuItem value="Family">Family</MenuItem>
+                  <MenuItem value="Immigration">Immigration</MenuItem>
                 </TextField>
               </Grid>
               
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Passport Size Photo
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Passport Size Photo *
                 </Typography>
                 <input
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="passport-photo-upload"
+                  accept="image/jpeg,image/png,image/jpg"
                   type="file"
                   name="passportPhoto"
                   onChange={handleFileChange}
+                  style={{ marginBottom: '8px' }}
                 />
-                <label htmlFor="passport-photo-upload">
-                  <Button variant="outlined" component="span" fullWidth>
-                    Upload Photo
-                  </Button>
-                </label>
-                {previews.passportPhoto && (
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <img 
-                      src={previews.passportPhoto} 
-                      alt="Passport Photo Preview" 
-                      style={{ maxWidth: '100%', maxHeight: '150px', border: '1px solid #ccc' }}
-                    />
-                  </Box>
+                {fileErrors.passportPhoto && (
+                  <Typography color="error" variant="caption">
+                    {fileErrors.passportPhoto}
+                  </Typography>
                 )}
               </Grid>
               
-              <Grid item xs={12} md={6}>
-                <Typography variant="subtitle1" gutterBottom>
-                  Passport Front Page Scan
+              <Grid item xs={12} sm={6}>
+                <Typography variant="subtitle2" gutterBottom>
+                  Passport Scan (First Page) *
                 </Typography>
                 <input
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  id="passport-scan-upload"
+                  accept="image/jpeg,image/png,image/jpg,application/pdf"
                   type="file"
                   name="passportScan"
                   onChange={handleFileChange}
+                  style={{ marginBottom: '8px' }}
                 />
-                <label htmlFor="passport-scan-upload">
-                  <Button variant="outlined" component="span" fullWidth>
-                    Upload Scan
-                  </Button>
-                </label>
-                {previews.passportScan && (
-                  <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <img 
-                      src={previews.passportScan} 
-                      alt="Passport Scan Preview" 
-                      style={{ maxWidth: '100%', maxHeight: '150px', border: '1px solid #ccc' }}
-                    />
-                  </Box>
+                {fileErrors.passportScan && (
+                  <Typography color="error" variant="caption">
+                    {fileErrors.passportScan}
+                  </Typography>
                 )}
               </Grid>
               
-              <Grid item xs={12} sx={{ mt: 2 }}>
+              <Grid item xs={12}>
                 <Button
                   type="submit"
                   variant="contained"
                   fullWidth
                   size="large"
                   disabled={loading}
-                  sx={{ py: 1.5 }}
+                  sx={{ mt: 2, py: 1.5 }}
                 >
                   {loading ? <CircularProgress size={24} /> : 'Submit Application'}
                 </Button>

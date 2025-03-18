@@ -1,32 +1,60 @@
-import { useState, useEffect } from 'react';
-import { Typography } from '@mui/material';
 import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
+import { Box, Typography, Grid } from '@mui/material';
 
 const Countdown = ({ duration }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+    setTimeLeft(duration); // Reset countdown when duration prop changes
+  }, [duration]);
 
-  const formatTime = seconds => {
-    const days = Math.floor(seconds / (60 * 60 * 24)).toString().padStart(2, '0');
-    const hours = Math.floor((seconds % (60 * 60 * 24)) / (60 * 60)).toString().padStart(2, '0');
-    const mins = Math.floor((seconds % (60 * 60)) / 60).toString().padStart(2, '0');
-    const secs = (seconds % 60).toString().padStart(2, '0');
-    return `${days}d ${hours}h ${mins}m ${secs}s`;
-  };
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft(prevTime => Math.max(0, prevTime - 1000));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (value) => (value < 10 ? `0${value}` : value);
+
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
   return (
-    <Typography variant="h6" color="warning.main">
-      {formatTime(timeLeft)}
-    </Typography>
+    <Grid container spacing={2} justifyContent="center">
+      {[{ value: days, label: 'Days' },
+        { value: hours, label: 'Hours' },
+        { value: minutes, label: 'Minutes' },
+        { value: seconds, label: 'Seconds' }].map((unit, index) => (
+          <Grid item key={index}>
+            <Box
+              sx={{
+                bgcolor: 'rgba(0, 0, 0, 0.5)',
+                color: 'white',
+                borderRadius: 1,
+                p: 1,
+                minWidth: 70,
+                textAlign: 'center'
+              }}
+            >
+              <Typography variant="h5" fontWeight="bold">
+                {formatTime(unit.value)}
+              </Typography>
+              <Typography variant="caption">{unit.label}</Typography>
+            </Box>
+          </Grid>
+        ))}
+    </Grid>
   );
 };
 
+// Define PropTypes for the component
 Countdown.propTypes = {
   duration: PropTypes.number.isRequired,
 };

@@ -3,7 +3,6 @@ import HomePage from './pages/HomePage';
 import VisaApplication from './pages/VisaApplication';
 import DrawApplicationForm from './pages/DrawApplicationForm';
 import DrawPayment from './pages/DrawPayment';
-import DrawPage from './pages/DrawPage';
 import Dashboard from './pages/Dashboard';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
@@ -25,9 +24,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/apply" element={<VisaApplication />} />
-        <Route path="/draw" element={<DrawPage />} />
-        <Route path="/draw-application" element={<DrawApplicationForm />} />
-        <Route path="/draw-payment" element={<DrawPayment />} />
+        <Route path="/draw-application" element={<ProtectedRoute><DrawApplicationForm /></ProtectedRoute>} />
+        <Route path="/draw-payment" element={<ProtectedRoute><DrawPayment /></ProtectedRoute>} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
