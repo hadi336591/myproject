@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import { 
   Container, Typography, Button, Box, TextField, Paper, 
-  CircularProgress, Alert, Link as MuiLink 
+  CircularProgress, Alert, Link as MuiLink, Divider
 } from '@mui/material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -87,12 +87,40 @@ const Login = () => {
     }
   };
 
-  // Special case for admin login
-  const handleAdminLogin = () => {
-    setFormData({
-      email: 'hadibinkhalid@hotmail.com',
-      password: '12345678'
-    });
+  // Admin login handler
+  const handleAdminLogin = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: 'hadibinkhalid@hotmail.com',
+          password: '12345678'
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Store auth data in context
+        login(data);
+        
+        // Redirect to admin panel
+        navigate('/admin');
+      } else {
+        setError(data.message || 'Admin login failed');
+      }
+    } catch (err) {
+      console.error('Error during admin login:', err);
+      setError('An error occurred during admin login');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -151,18 +179,23 @@ const Login = () => {
                   Register here
                 </MuiLink>
               </Typography>
-              
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                <MuiLink 
-                  component="button" 
-                  variant="body2"
-                  onClick={handleAdminLogin}
-                  sx={{ textDecoration: 'none' }}
-                >
-                  Admin Login
-                </MuiLink>
-              </Typography>
             </Box>
+          </Box>
+          
+          <Divider sx={{ my: 3 }} />
+          
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              Admin access:
+            </Typography>
+            <Button 
+              variant="outlined" 
+              onClick={handleAdminLogin}
+              disabled={loading}
+              fullWidth
+            >
+              {loading ? <CircularProgress size={24} /> : 'Login as Admin'}
+            </Button>
           </Box>
         </Paper>
       </Container>

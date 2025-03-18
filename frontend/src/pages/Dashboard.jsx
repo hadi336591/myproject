@@ -103,7 +103,7 @@ const Dashboard = () => {
                   Name
                 </Typography>
                 <Typography variant="body1">
-                  {dashboardData?.user?.name || 'N/A'}
+                  {auth?.user?.name || 'N/A'}
                 </Typography>
               </Box>
               
@@ -112,7 +112,7 @@ const Dashboard = () => {
                   Email
                 </Typography>
                 <Typography variant="body1">
-                  {dashboardData?.user?.email || 'N/A'}
+                  {auth?.user?.email || 'N/A'}
                 </Typography>
               </Box>
               
@@ -121,8 +121,8 @@ const Dashboard = () => {
                   Account Type
                 </Typography>
                 <Chip 
-                  label={dashboardData?.user?.role === 'admin' ? 'Admin' : 'User'} 
-                  color={dashboardData?.user?.role === 'admin' ? 'primary' : 'default'}
+                  label={auth?.user?.role === 'admin' ? 'Admin' : 'User'} 
+                  color={auth?.user?.role === 'admin' ? 'primary' : 'default'}
                   size="small"
                 />
               </Box>

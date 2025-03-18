@@ -24,8 +24,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/apply" element={<VisaApplication />} />
-        <Route path="/draw-application" element={<DrawApplicationForm />} />
-        <Route path="/draw-payment" element={<DrawPayment />} />
+        <Route path="/draw-application" element={<ProtectedRoute><DrawApplicationForm /></ProtectedRoute>} />
+        <Route path="/draw-payment" element={<ProtectedRoute><DrawPayment /></ProtectedRoute>} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />

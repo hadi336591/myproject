@@ -15,7 +15,7 @@ const AdminRoute = ({ children }) => {
   }
 
   if (!auth) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: '/admin' }} />;
   }
 
   if (auth.user.role !== 'admin') {

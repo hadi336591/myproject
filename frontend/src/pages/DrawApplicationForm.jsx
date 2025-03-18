@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { 
   Container, Typography, Button, Box, TextField, Paper, 
   Grid, CircularProgress, Alert, MenuItem, Divider 
@@ -30,11 +30,12 @@ const DrawApplicationForm = () => {
     passportScan: ''
   });
 
-  // Check if user is logged in
-  if (!auth) {
-    navigate('/login', { state: { from: '/draw-application' } });
-    return null;
-  }
+  useEffect(() => {
+    // Check if user is logged in
+    if (!auth) {
+      navigate('/login', { state: { from: '/draw-application' } });
+    }
+  }, [auth, navigate]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -138,6 +139,10 @@ const DrawApplicationForm = () => {
       setLoading(false);
     }
   };
+
+  if (!auth) {
+    return null; // Don't render anything if not authenticated (will redirect in useEffect)
+  }
 
   return (
     <>

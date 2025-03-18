@@ -1,10 +1,11 @@
 import { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CircularProgress, Box } from '@mui/material';
 
 const ProtectedRoute = ({ children }) => {
   const { auth, loading } = useContext(AuthContext);
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -15,7 +16,8 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!auth) {
-    return <Navigate to="/login" />;
+    // Pass the current location to the login page so it can redirect back after login
+    return <Navigate to="/login" state={{ from: location.pathname }} />;
   }
 
   return children;
