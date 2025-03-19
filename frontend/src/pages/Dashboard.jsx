@@ -2,7 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { 
   Container, Typography, Box, Paper, Grid, Divider, 
   Button, CircularProgress, Alert, Chip, Card, CardContent,
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Stepper, Step, StepLabel, StepContent
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -15,6 +16,12 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dashboardData, setDashboardData] = useState(null);
+  const [applicationStatus, setApplicationStatus] = useState({
+    formSubmitted: false,
+    documentsUploaded: false,
+    paymentCompleted: false,
+    applicationComplete: false
+  });
 
   useEffect(() => {
     // Check if user is logged in
@@ -36,6 +43,21 @@ const Dashboard = () => {
         
         if (response.ok) {
           setDashboardData(data);
+          
+          // Check application status
+          if (data.application) {
+            const formSubmitted = true;
+            const documentsUploaded = data.application.documents && data.application.documents.length > 0;
+            const paymentCompleted = data.application.paymentStatus;
+            const applicationComplete = formSubmitted && documentsUploaded && paymentCompleted;
+            
+            setApplicationStatus({
+              formSubmitted,
+              documentsUploaded,
+              paymentCompleted,
+              applicationComplete
+            });
+          }
         } else {
           setError(data.message || 'Failed to fetch dashboard data');
         }
@@ -136,6 +158,112 @@ const Dashboard = () => {
                 Edit Profile
               </Button>
             </Paper>
+            
+            {/* Application Status */}
+            <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Application Status
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              
+              <Stepper orientation="vertical" activeStep={
+                applicationStatus.applicationComplete ? 3 : 
+                applicationStatus.paymentCompleted ? 2 : 
+                applicationStatus.documentsUploaded ? 1 : 
+                applicationStatus.formSubmitted ? 0 : -1
+              }>
+                <Step>
+                  <StepLabel>Form Submission</StepLabel>
+                  <StepContent>
+                    <Typography variant="body2">
+                      {applicationStatus.formSubmitted 
+                        ? 'You have successfully submitted your application form.' 
+                        : 'Please submit your visa application form.'}
+                    </Typography>
+                    {!applicationStatus.formSubmitted && (
+                      <Button 
+                        variant="contained" 
+                        size="small" 
+                        sx={{ mt: 1 }}
+                        onClick={() => navigate('/apply')}
+                      >
+                        Apply Now
+                      </Button>
+                    )}
+                  </StepContent>
+                </Step>
+                
+                <Step>
+                  <StepLabel>Document Upload</StepLabel>
+                  <StepContent>
+                    <Typography variant="body2">
+                      {applicationStatus.documentsUploaded 
+                        ? 'Your documents have been uploaded successfully.' 
+                        : 'Please upload all required documents for your application.'}
+                    </Typography>
+                    {applicationStatus.formSubmitted && !applicationStatus.documentsUploaded && (
+                      <Button 
+                        variant="contained" 
+                        size="small" 
+                        sx={{ mt: 1 }}
+                        onClick={() => navigate('/upload-documents')}
+                      >
+                        Upload Documents
+                      </Button>
+                    )}
+                  </StepContent>
+                </Step>
+                
+                <Step>
+                  <StepLabel>Payment</StepLabel>
+                  <StepContent>
+                    <Typography variant="body2">
+                      {applicationStatus.paymentCompleted 
+                        ? 'Payment has been completed successfully.' 
+                        : 'Please complete the payment for your application.'}
+                    </Typography>
+                    {applicationStatus.formSubmitted && 
+                     applicationStatus.documentsUploaded && 
+                     !applicationStatus.paymentCompleted && (
+                      <Button 
+                        variant="contained" 
+                        size="small" 
+                        sx={{ mt: 1 }}
+                        onClick={() => navigate('/payment')}
+                      >
+                        Make Payment
+                      </Button>
+                    )}
+                  </StepContent>
+                </Step>
+                
+                <Step>
+                  <StepLabel>Application Complete</StepLabel>
+                  <StepContent>
+                    <Typography variant="body2">
+                      Your application is complete and is being processed. You will be notified of any updates.
+                    </Typography>
+                  </StepContent>
+                </Step>
+              </Stepper>
+              
+              {applicationStatus.applicationComplete && (
+                <Alert severity="success" sx={{ mt: 2 }}>
+                  Your application is complete and is being processed. You can now apply for the lucky draw!
+                </Alert>
+              )}
+              
+              {applicationStatus.applicationComplete && (
+                <Button 
+                  variant="contained" 
+                  fullWidth 
+                  sx={{ mt: 2 }}
+                  onClick={() => navigate('/draw-application')}
+                >
+                  Apply for Lucky Draw
+                </Button>
+              )}
+            </Paper>
           </Grid>
           
           {/* Applications Section */}
@@ -204,13 +332,19 @@ const Dashboard = () => {
                     <Typography variant="body1" gutterBottom>
                       You haven&apos;t applied for any lucky draws yet.
                     </Typography>
-                    <Button 
-                      variant="contained" 
-                      sx={{ mt: 2 }}
-                      onClick={() => navigate('/draw-application')}
-                    >
-                      Apply for Lucky Draw
-                    </Button>
+                    {applicationStatus.applicationComplete ? (
+                      <Button 
+                        variant="contained" 
+                        sx={{ mt: 2 }}
+                        onClick={() => navigate('/draw-application')}
+                      >
+                        Apply for Lucky Draw
+                      </Button>
+                    ) : (
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                        Complete your visa application to be eligible for the lucky draw.
+                      </Typography>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -253,6 +387,15 @@ const Dashboard = () => {
                       
                       <Grid item xs={12} sm={6}>
                         <Typography variant="body2" color="text.secondary">
+                          Application Date
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          {new Date(dashboardData.application.createdAt).toLocaleDateString()}
+                        </Typography>
+                      </Grid>
+                      
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body2" color="text.secondary">
                           Payment Status
                         </Typography>
                         <Chip 
@@ -261,7 +404,26 @@ const Dashboard = () => {
                           size="small"
                         />
                       </Grid>
+                      
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="body2" color="text.secondary">
+                          Application Status
+                        </Typography>
+                        <Chip 
+                          label={applicationStatus.applicationComplete ? 'Complete' : 'Incomplete'} 
+                          color={applicationStatus.applicationComplete ? 'success' : 'warning'}
+                          size="small"
+                        />
+                      </Grid>
                     </Grid>
+                    
+                    {!applicationStatus.applicationComplete && (
+                      <Box sx={{ mt: 2 }}>
+                        <Alert severity="info">
+                          Please complete all steps in your application process to proceed.
+                        </Alert>
+                      </Box>
+                    )}
                   </CardContent>
                 </Card>
               ) : (
