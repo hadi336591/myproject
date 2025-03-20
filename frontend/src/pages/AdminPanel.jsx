@@ -23,12 +23,6 @@ const AdminPanel = () => {
     subtitle: '',
     buttonText: ''
   });
-  const [monthlyStats, setMonthlyStats] = useState({
-    applications: 0,
-    paidApplications: 0,
-    newUsers: 0,
-    revenue: 0
-  });
 
   useEffect(() => {
     if (!auth?.user?.role) {
@@ -59,30 +53,6 @@ const AdminPanel = () => {
 
         if (adminResponse.ok) {
           setAdminData(adminData);
-          
-          // Calculate monthly stats (last 30 days)
-          const oneMonthAgo = new Date();
-          oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-          
-          // Filter applications from the last month
-          const recentApplications = adminData.applications.filter(
-            app => new Date(app.drawEntryDate) > oneMonthAgo
-          );
-          
-          // Count paid applications from the last month
-          const recentPaidApplications = recentApplications.filter(
-            app => app.paymentStatus
-          );
-          
-          // Calculate revenue (3000 PKR per paid application)
-          const monthlyRevenue = recentPaidApplications.length * 3000;
-          
-          setMonthlyStats({
-            applications: recentApplications.length,
-            paidApplications: recentPaidApplications.length,
-            newUsers: 0, // We'll need to add this data from the backend
-            revenue: monthlyRevenue
-          });
         }
         else setError(adminData.message || 'Failed to fetch admin data');
 
@@ -153,10 +123,26 @@ const AdminPanel = () => {
           </Typography>
           <Grid container spacing={3}>
             {[
-              { title: "New Applications", value: monthlyStats.applications, color: "#1976d2" },
-              { title: "Paid Applications", value: monthlyStats.paidApplications, color: "#2e7d32" },
-              { title: "Revenue", value: `${monthlyStats.revenue.toLocaleString()} PKR`, color: "#f57c00" },
-              { title: "New Users", value: monthlyStats.newUsers, color: "#7b1fa2" }
+              { 
+                title: "New Applications", 
+                value: adminData?.monthlyStats?.applications || 0, 
+                color: "#1976d2" 
+              },
+              { 
+                title: "Paid Applications", 
+                value: adminData?.monthlyStats?.paidApplications || 0, 
+                color: "#2e7d32" 
+              },
+              { 
+                title: "Revenue", 
+                value: `${(adminData?.monthlyStats?.revenue || 0).toLocaleString()} PKR`, 
+                color: "#f57c00" 
+              },
+              { 
+                title: "New Users", 
+                value: adminData?.monthlyStats?.newUsers || 0, 
+                color: "#7b1fa2" 
+              }
             ].map((stat, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card sx={{ height: '100%', backgroundColor: stat.color, color: 'white' }}>

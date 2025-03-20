@@ -60,6 +60,29 @@ router.get('/', verifyAdmin, async (req, res) => {
     // Get all news feeds
     const newsFeeds = await NewsFeed.find().sort({ createdAt: -1 });
     
+    // Calculate monthly stats (last 30 days)
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setDate(oneMonthAgo.getDate() - 30);
+    
+    // Get monthly applications count
+    const monthlyApplicationsCount = await DrawApplication.countDocuments({
+      drawEntryDate: { $gte: oneMonthAgo }
+    });
+    
+    // Get monthly paid applications count
+    const monthlyPaidApplicationsCount = await DrawApplication.countDocuments({
+      drawEntryDate: { $gte: oneMonthAgo },
+      paymentStatus: true
+    });
+    
+    // Get monthly new users count
+    const monthlyNewUsersCount = await User.countDocuments({
+      createdAt: { $gte: oneMonthAgo }
+    });
+    
+    // Calculate monthly revenue (3000 PKR per paid application)
+    const monthlyRevenue = monthlyPaidApplicationsCount * 3000;
+    
     res.json({ 
       message: 'Admin dashboard data', 
       stats: {
@@ -67,6 +90,12 @@ router.get('/', verifyAdmin, async (req, res) => {
         paidDrawApplications: paidDrawApplicationsCount,
         users: usersCount,
         blogs: blogsCount
+      },
+      monthlyStats: {
+        applications: monthlyApplicationsCount,
+        paidApplications: monthlyPaidApplicationsCount,
+        newUsers: monthlyNewUsersCount,
+        revenue: monthlyRevenue
       },
       applications,
       blogs,
