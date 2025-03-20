@@ -6,9 +6,12 @@ import { AuthContext } from '../context/AuthContext';
 const Navbar = () => {
   const { auth, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  
+  // Only show user-related content if the user is not an admin
+  const isRegularUser = auth && auth.user && auth.user.role !== 'admin';
 
   return (
-    <AppBar position="static"> {/* Dark theme */}
+    <AppBar position="static">
       <Toolbar>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>
           <Link to="/" style={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}>
@@ -18,10 +21,12 @@ const Navbar = () => {
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button color="inherit" component={Link} to="/">Home</Button>
           <Button color="inherit" component={Link} to="/apply">Services</Button>
-          <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
+          {isRegularUser && (
+            <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
+          )}
           <Button color="inherit" component={Link} to="/blog">Blog</Button>
           <Button color="inherit" component={Link} to="/contact">Contact</Button>
-          {auth ? (
+          {isRegularUser ? (
             <Button
               variant="contained"
               sx={{
@@ -36,7 +41,7 @@ const Navbar = () => {
             >
               Logout
             </Button>
-          ) : (
+          ) : !auth ? (
             <>
               <Button
                 variant="contained"
@@ -55,7 +60,7 @@ const Navbar = () => {
                 Register
               </Button>
             </>
-          )}
+          ) : null}
         </Box>
       </Toolbar>
     </AppBar>

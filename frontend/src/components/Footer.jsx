@@ -1,12 +1,17 @@
 import { Box, Container, Grid, TextField, Button, IconButton, Typography } from '@mui/material';
 import { Facebook, Twitter, Instagram, LinkedIn, RssFeed, Email, AdminPanelSettings } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 const Footer = () => {
   const { auth } = useContext(AuthContext);
+  const navigate = useNavigate();
   const isAdmin = auth && auth.user && auth.user.role === 'admin';
+
+  const handleAdminLoginClick = () => {
+    navigate('/admin-login');
+  };
 
   return (
     <Box sx={{ 
@@ -138,11 +143,28 @@ const Footer = () => {
             display: 'flex', 
             gap: 3,
             width: { xs: '100%', md: 'auto' },
-            justifyContent: { xs: 'center', md: 'flex-end' }
+            justifyContent: { xs: 'center', md: 'flex-end' },
+            alignItems: 'center'
           }}>
             <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Home</Link>
             <Link to="/about" style={{ color: 'white', textDecoration: 'none' }}>About Us</Link>
             <Link to="/contact" style={{ color: 'white', textDecoration: 'none' }}>Contact Us</Link>
+            <Button 
+              variant="outlined" 
+              size="small"
+              startIcon={<AdminPanelSettings />}
+              onClick={handleAdminLoginClick}
+              sx={{ 
+                color: 'white', 
+                borderColor: 'rgba(255,255,255,0.3)',
+                '&:hover': { 
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  borderColor: 'white'
+                }
+              }}
+            >
+              Admin Login
+            </Button>
           </Box>
         </Box>
       </Container>
@@ -150,4 +172,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;  
+export default Footer;

@@ -2,7 +2,9 @@ import { useState, useEffect, useContext } from 'react';
 import { 
   Container, Typography, Box, Paper, Grid, Alert, 
   Button, CircularProgress, Tabs, Tab, 
-  TextField, Card, CardContent
+  TextField, Card, CardContent, Table, TableBody, 
+  TableCell, TableContainer, TableHead, TableRow,
+  Chip, Divider
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -21,12 +23,21 @@ const AdminPanel = () => {
     subtitle: '',
     buttonText: ''
   });
+  const [monthlyStats, setMonthlyStats] = useState({
+    applications: 0,
+    paidApplications: 0,
+    newUsers: 0,
+    revenue: 0
+  });
 
   useEffect(() => {
-    if (!auth?.user?.role) return; // Avoid accessing undefined auth data
+    if (!auth?.user?.role) {
+      navigate('/admin-login');
+      return;
+    }
     
     if (auth.user.role !== 'admin') {
-      navigate('/login');
+      navigate('/admin-login');
       return;
     }
 
@@ -46,7 +57,33 @@ const AdminPanel = () => {
           heroResponse.json()
         ]);
 
-        if (adminResponse.ok) setAdminData(adminData);
+        if (adminResponse.ok) {
+          setAdminData(adminData);
+          
+          // Calculate monthly stats (last 30 days)
+          const oneMonthAgo = new Date();
+          oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+          
+          // Filter applications from the last month
+          const recentApplications = adminData.applications.filter(
+            app => new Date(app.drawEntryDate) > oneMonthAgo
+          );
+          
+          // Count paid applications from the last month
+          const recentPaidApplications = recentApplications.filter(
+            app => app.paymentStatus
+          );
+          
+          // Calculate revenue (3000 PKR per paid application)
+          const monthlyRevenue = recentPaidApplications.length * 3000;
+          
+          setMonthlyStats({
+            applications: recentApplications.length,
+            paidApplications: recentPaidApplications.length,
+            newUsers: 0, // We'll need to add this data from the backend
+            revenue: monthlyRevenue
+          });
+        }
         else setError(adminData.message || 'Failed to fetch admin data');
 
         if (heroResponse.ok) setHeroContent(heroData);
@@ -109,12 +146,36 @@ const AdminPanel = () => {
         
         {error && <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>}
 
+        {/* Monthly Stats */}
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Last 30 Days Statistics
+          </Typography>
+          <Grid container spacing={3}>
+            {[
+              { title: "New Applications", value: monthlyStats.applications, color: "#1976d2" },
+              { title: "Paid Applications", value: monthlyStats.paidApplications, color: "#2e7d32" },
+              { title: "Revenue", value: `${monthlyStats.revenue.toLocaleString()} PKR`, color: "#f57c00" },
+              { title: "New Users", value: monthlyStats.newUsers, color: "#7b1fa2" }
+            ].map((stat, index) => (
+              <Grid item xs={12} sm={6} md={3} key={index}>
+                <Card sx={{ height: '100%', backgroundColor: stat.color, color: 'white' }}>
+                  <CardContent sx={{ textAlign: 'center' }}>
+                    <Typography variant="h6">{stat.title}</Typography>
+                    <Typography variant="h4" sx={{ mt: 2 }}>{stat.value}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Paper>
+
         {/* Dashboard Stats */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {[
-            { title: "Draw Applications", value: adminData?.stats?.drawApplications || 0 },
-            { title: "Paid Applications", value: adminData?.stats?.paidDrawApplications || 0 },
-            { title: "Users", value: adminData?.stats?.users || 0 },
+            { title: "Total Applications", value: adminData?.stats?.drawApplications || 0 },
+            { title: "Total Paid", value: adminData?.stats?.paidDrawApplications || 0 },
+            { title: "Total Users", value: adminData?.stats?.users || 0 },
             { title: "Blog Posts", value: adminData?.stats?.blogs || 0 }
           ].map((stat, index) => (
             <Grid item xs={12} sm={6} md={3} key={index}>
@@ -139,6 +200,80 @@ const AdminPanel = () => {
             <Tab label="Blog Posts" />
             <Tab label="News Feed" />
           </Tabs>
+
+          {/* Draw Applications Tab */}
+          {activeTab === 0 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Draw Applications
+              </Typography>
+              {adminData?.applications?.length > 0 ? (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Country</TableCell>
+                        <TableCell>Visa Type</TableCell>
+                        <TableCell>Payment Status</TableCell>
+                        <TableCell>Payment Method</TableCell>
+                        <TableCell>Documents</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {adminData.applications.map((app) => (
+                        <TableRow key={app._id}>
+                          <TableCell>
+                            {new Date(app.drawEntryDate).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>{app.fullName}</TableCell>
+                          <TableCell>{app.country}</TableCell>
+                          <TableCell>{app.visaType}</TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={app.paymentStatus ? 'Paid' : 'Pending'} 
+                              color={app.paymentStatus ? 'success' : 'warning'}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {app.paymentMethod || 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                              {app.passportPhoto && (
+                                <Button 
+                                  size="small" 
+                                  variant="outlined"
+                                  href={`http://localhost:5000/${app.passportPhoto}`}
+                                  target="_blank"
+                                >
+                                  Photo
+                                </Button>
+                              )}
+                              {app.passportScan && (
+                                <Button 
+                                  size="small" 
+                                  variant="outlined"
+                                  href={`http://localhost:5000/${app.passportScan}`}
+                                  target="_blank"
+                                >
+                                  Passport
+                                </Button>
+                              )}
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Alert severity="info">No applications found</Alert>
+              )}
+            </Box>
+          )}
 
           {/* Hero Content Tab */}
           {activeTab === 1 && (
@@ -166,6 +301,94 @@ const AdminPanel = () => {
                   </Button>
                 </CardContent>
               </Card>
+            </Box>
+          )}
+
+          {/* Blog Posts Tab */}
+          {activeTab === 2 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Blog Posts
+              </Typography>
+              {adminData?.blogs?.length > 0 ? (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Title</TableCell>
+                        <TableCell>Author</TableCell>
+                        <TableCell>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {adminData.blogs.map((blog) => (
+                        <TableRow key={blog._id}>
+                          <TableCell>
+                            {new Date(blog.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>{blog.title}</TableCell>
+                          <TableCell>{blog.author}</TableCell>
+                          <TableCell>
+                            <Button 
+                              size="small" 
+                              variant="outlined"
+                              href={`/blog/${blog._id}`}
+                              target="_blank"
+                            >
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Alert severity="info">No blog posts found</Alert>
+              )}
+            </Box>
+          )}
+
+          {/* News Feed Tab */}
+          {activeTab === 3 && (
+            <Box sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                News Feed
+              </Typography>
+              {adminData?.newsFeeds?.length > 0 ? (
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Title</TableCell>
+                        <TableCell>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {adminData.newsFeeds.map((feed) => (
+                        <TableRow key={feed._id}>
+                          <TableCell>
+                            {new Date(feed.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>{feed.title}</TableCell>
+                          <TableCell>
+                            <Button 
+                              size="small" 
+                              variant="outlined"
+                            >
+                              View
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Alert severity="info">No news feeds found</Alert>
+              )}
             </Box>
           )}
         </Paper>

@@ -1,39 +1,52 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import VisaApplication from './pages/VisaApplication';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { AuthProvider } from './context/AuthContext';
+
+// Pages
+import Home from './pages/Home';
+import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import AdminPanel from './pages/AdminPanel';
+import VisaApplicationForm from './pages/VisaApplicationForm';
+import PaymentPage from './pages/PaymentPage';
 import DrawApplicationForm from './pages/DrawApplicationForm';
 import DrawPayment from './pages/DrawPayment';
-import Dashboard from './pages/Dashboard';
-import Blog from './pages/Blog';
-import Contact from './pages/Contact';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AdminPanel from './pages/AdminPanel';
-import ProtectedRoute from './components/ProtectedRoute';
-import AdminRoute from './components/AdminRoute';
-import TopBar from './components/TopBar';
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#f50057',
+    },
+  },
+});
 
 function App() {
   return (
-    <Router>
-      {/* Top bar first */}
-      <TopBar />
-      {/* Main navbar below */}
-      {/* <Navbar /> */}
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/apply" element={<VisaApplication />} />
-        <Route path="/draw-application" element={<ProtectedRoute><DrawApplicationForm /></ProtectedRoute>} />
-        <Route path="/draw-payment" element={<ProtectedRoute><DrawPayment /></ProtectedRoute>} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
-      </Routes>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/apply" element={<VisaApplicationForm />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/draw-application" element={<DrawApplicationForm />} />
+            <Route path="/draw-payment" element={<DrawPayment />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
