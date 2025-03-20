@@ -121,8 +121,8 @@ const Dashboard = () => {
                   Account Type
                 </Typography>
                 <Chip 
-                  label={auth?.user?.role === 'admin' ? 'Admin' : 'User'} 
-                  color={auth?.user?.role === 'admin' ? 'primary' : 'default'}
+                  label="User" 
+                  color="default"
                   size="small"
                 />
               </Box>
@@ -158,10 +158,10 @@ const Dashboard = () => {
                       <TableRow>
                         <TableCell>Date</TableCell>
                         <TableCell>Name</TableCell>
+                        <TableCell>Passport No</TableCell>
                         <TableCell>Country</TableCell>
                         <TableCell>Visa Type</TableCell>
                         <TableCell>Payment Status</TableCell>
-                        <TableCell>Payment Method</TableCell>
                         <TableCell>Details</TableCell>
                       </TableRow>
                     </TableHead>
@@ -172,6 +172,7 @@ const Dashboard = () => {
                             {new Date(app.drawEntryDate).toLocaleDateString()}
                           </TableCell>
                           <TableCell>{app.fullName}</TableCell>
+                          <TableCell>{app.passportNo}</TableCell>
                           <TableCell>{app.country}</TableCell>
                           <TableCell>{app.visaType}</TableCell>
                           <TableCell>
@@ -180,9 +181,6 @@ const Dashboard = () => {
                               color={app.paymentStatus ? 'success' : 'warning'}
                               size="small"
                             />
-                          </TableCell>
-                          <TableCell>
-                            {app.paymentStatus ? getPaymentMethodLabel(app.paymentMethod) : 'N/A'}
                           </TableCell>
                           <TableCell>
                             <Button 
@@ -215,70 +213,17 @@ const Dashboard = () => {
                 </Card>
               )}
               
-              {/* Visa Applications */}
-              <Typography variant="subtitle1" gutterBottom>
-                Visa Applications
-              </Typography>
-              
-              {dashboardData?.application ? (
-                <Card variant="outlined" sx={{ mb: 2 }}>
-                  <CardContent>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">
-                          Name
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          {dashboardData.application.fullName}
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">
-                          Email
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          {dashboardData.application.email}
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">
-                          Visa Type
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          {dashboardData.application.visaType}
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid item xs={12} sm={6}>
-                        <Typography variant="body2" color="text.secondary">
-                          Payment Status
-                        </Typography>
-                        <Chip 
-                          label={dashboardData.application.paymentStatus ? 'Paid' : 'Pending'} 
-                          color={dashboardData.application.paymentStatus ? 'success' : 'warning'}
-                          size="small"
-                        />
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card variant="outlined" sx={{ bgcolor: 'background.default' }}>
-                  <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                    <Typography variant="body1" gutterBottom>
-                      You haven&apos;t submitted any visa applications yet.
-                    </Typography>
-                    <Button 
-                      variant="contained" 
-                      sx={{ mt: 2 }}
-                      onClick={() => navigate('/apply')}
-                    >
-                      Apply for Visa
-                    </Button>
-                  </CardContent>
-                </Card>
+              {/* Apply for New Draw Button */}
+              {dashboardData?.drawApplications?.length > 0 && (
+                <Box sx={{ textAlign: 'center', mt: 3 }}>
+                  <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={() => navigate('/draw-application')}
+                  >
+                    Apply for Another Draw
+                  </Button>
+                </Box>
               )}
             </Paper>
           </Grid>
