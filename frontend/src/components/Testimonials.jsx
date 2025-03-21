@@ -6,7 +6,7 @@ const testimonials = [
   {
     id: 1,
     name: 'Ahmed Khan',
-    avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+    avatar: 'https://nileconsultant.com/wp-content/uploads/2022/06/man_ph.jpg',
     rating: 5,
     text: 'The visa application process was smooth and hassle-free. The team guided me through every step and I got my visa approved in record time!',
     country: 'Canada Visa'
@@ -14,7 +14,7 @@ const testimonials = [
   {
     id: 2,
     name: 'Fatima Ali',
-    avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
+    avatar: 'https://nileconsultant.com/wp-content/uploads/2022/06/women-place-holder.jpg',
     rating: 5,
     text: 'I won the lucky draw and got my visa processing for free! The team was professional and helped me with all the documentation.',
     country: 'UK Visa'
@@ -22,7 +22,7 @@ const testimonials = [
   {
     id: 3,
     name: 'Muhammad Usman',
-    avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+    avatar: 'https://nileconsultant.com/wp-content/uploads/2022/06/man_ph.jpg',
     rating: 4,
     text: 'Great service and support. They made the complex visa process simple and understandable. Highly recommended!',
     country: 'Australia Visa'

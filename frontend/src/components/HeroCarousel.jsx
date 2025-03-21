@@ -3,7 +3,7 @@ import { Box } from '@mui/material';
 
 const slides = [
   {
-    url: 'https://nileconsultant.com/wp-content/uploads/2020/07/immigration-1.jpg',
+    url: 'https://nileconsultant.com/wp-content/uploads/2020/08/163d4f60-c55c-11e8-87bb-0242ac11000d.webp',
     title: 'United States'
   },
   {
@@ -15,7 +15,7 @@ const slides = [
     title: 'Spain'
   },
   {
-    url: 'https://nileconsultant.com/wp-content/uploads/2020/07/germany.jpg',
+    url: 'https://nileconsultant.com/wp-content/uploads/2022/06/Germany-flag-1024x724-1.jpg',
     title: 'Germany'
   }
 ];

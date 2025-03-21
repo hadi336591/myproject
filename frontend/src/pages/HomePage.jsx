@@ -15,9 +15,9 @@ const countries = [
   { src: 'https://nileconsultant.com/wp-content/uploads/2022/06/spain_1024x724.jpg', label: 'Spain' },
   { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/immigration-1.jpg', label: 'United States' },
   { src: 'https://nileconsultant.com/wp-content/uploads/2020/08/immigration-2.jpg', label: 'Canada' },
-  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/germany.jpg', label: 'Germany' },
-  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/france.jpg', label: 'France' },
-  { src: 'https://nileconsultant.com/wp-content/uploads/2020/07/turkiye.jpg', label: 'Türkiye' },
+  { src: '	https://nileconsultant.com/wp-content/uploads/2022/06/Germany-flag-1024x724-1.jpg', label: 'Germany' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2022/06/France-Smartphone-Market_1024x724.jpg', label: 'France' },
+  { src: 'https://nileconsultant.com/wp-content/uploads/2020/08/163d4f60-c55c-11e8-87bb-0242ac11000d.webp', label: 'Türkiye' },
 ];
 
 const HomePage = () => {
@@ -112,7 +112,7 @@ const HomePage = () => {
             {heroContent.subtitle}
           </Typography>
           <Box sx={{ mt: 2 }}>
-            <Countdown duration={3888000} />
+          <Countdown duration={2592000000} />
           </Box>
           <Button 
             variant="contained" 
@@ -140,7 +140,7 @@ const HomePage = () => {
       <Box sx={{ height: '2rem' }} />
       
       {/* Apply Section */}
-      <Box sx={{ backgroundColor: '#303030', py: 6 }}>
+      <Box sx={{ backgroundColor: '#001f3f', py: 6 }}>
         <Container maxWidth="md" sx={{ textAlign: 'center', color: 'white' }}>
           <Typography variant="h2" sx={{ fontWeight: 'bold', color: '#ff9800' }}>
             Apply for Your Visa Online
@@ -231,7 +231,7 @@ const HomePage = () => {
               <CardMedia
                 component="img"
                 height="140"
-                image="/images/visa-application.jpg"
+                image="https://nileconsultant.com/wp-content/uploads/2020/08/feature-2.jpg"
                 alt="Visa Application"
               />
               <CardContent sx={{ flexGrow: 1 }}>
@@ -275,7 +275,7 @@ const HomePage = () => {
               <CardMedia
                 component="img"
                 height="140"
-                image="/images/consultation.jpg"
+                image="	https://nileconsultant.com/wp-content/uploads/2020/08/feature-3.jpg"
                 alt="Consultation"
               />
               <CardContent sx={{ flexGrow: 1 }}>

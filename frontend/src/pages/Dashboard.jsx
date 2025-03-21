@@ -260,7 +260,7 @@ const Dashboard = () => {
                           color={dashboardData.application.paymentStatus ? 'success' : 'warning'}
                           size="small"
                         />
-                      </Grid>
+                      </Grid> 
                     </Grid>
                   </CardContent>
                 </Card>

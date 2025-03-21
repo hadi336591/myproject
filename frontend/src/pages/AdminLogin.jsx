@@ -1,16 +1,15 @@
 import { useState, useContext, useEffect } from 'react';
 import { 
   Container, Typography, Button, Box, TextField, Paper, 
-  CircularProgress, Alert, Link as MuiLink, Divider
+  CircularProgress, Alert, Divider
 } from '@mui/material';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { AuthContext } from '../context/AuthContext';
 
-const Login = () => {
+const AdminLogin = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login, auth } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,21 +18,12 @@ const Login = () => {
     password: ''
   });
 
-  // Get the redirect path from location state or default to dashboard
-  const from = location.state?.from || '/dashboard';
-
-  // If user is already logged in, redirect
+  // If user is already logged in as admin, redirect to admin panel
   useEffect(() => {
-    if (auth) {
-      if (auth.user.role === 'admin') {
-        navigate('/admin');
-      } else if (from) {
-        navigate(from);
-      } else {
-        navigate('/dashboard');
-      }
+    if (auth && auth.user && auth.user.role === 'admin') {
+      navigate('/admin');
     }
-  }, [auth, navigate, from]);
+  }, [auth, navigate]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -65,9 +55,9 @@ const Login = () => {
       const data = await response.json();
       
       if (response.ok) {
-        // Check if the user is an admin - redirect to admin login if they are
-        if (data.user.role === 'admin') {
-          setError('This login is for regular users only. Please use the admin login at the bottom of the page.');
+        // Check if the user is an admin
+        if (data.user.role !== 'admin') {
+          setError('Access denied. This login is for administrators only.');
           setLoading(false);
           return;
         }
@@ -75,12 +65,8 @@ const Login = () => {
         // Store auth data in context
         login(data);
         
-        // Redirect based on the 'from' path
-        if (from) {
-          navigate(from);
-        } else {
-          navigate('/dashboard');
-        }
+        // Redirect to admin panel
+        navigate('/admin');
       } else {
         setError(data.message || 'Login failed');
       }
@@ -97,8 +83,12 @@ const Login = () => {
       <Navbar />
       <Container maxWidth="sm" sx={{ py: 8 }}>
         <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-          <Typography variant="h4" align="center" sx={{ mb: 3 }}>
-            User Login
+          <Typography variant="h4" align="center" sx={{ mb: 1 }}>
+            Admin Login
+          </Typography>
+          
+          <Typography variant="body2" align="center" sx={{ mb: 3, color: 'text.secondary' }}>
+            This area is restricted to authorized administrators only.
           </Typography>
           
           {error && (
@@ -136,35 +126,18 @@ const Login = () => {
               fullWidth
               size="large"
               disabled={loading}
-              sx={{ mt: 3, mb: 2, py: 1.5 }}
+              sx={{ mt: 3, mb: 2, py: 1.5, backgroundColor: '#001f3f', '&:hover': { backgroundColor: '#003366' } }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Login'}
+              {loading ? <CircularProgress size={24} /> : 'Login as Administrator'}
             </Button>
-            
-            <Box sx={{ textAlign: 'center', mt: 2 }}>
-              <Typography variant="body2">
-                Don&apos;t have an account?{' '}
-                <MuiLink component={Link} to="/register">
-                  Register here
-                </MuiLink>
-              </Typography>
-            </Box>
           </Box>
           
           <Divider sx={{ my: 3 }} />
           
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              Are you an administrator?
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              If you&apos;re a regular user, please use the login button in the navigation bar.
             </Typography>
-            <Button 
-              variant="outlined" 
-              component={Link}
-              to="/admin-login"
-              fullWidth
-            >
-              Go to Admin Login
-            </Button>
           </Box>
         </Paper>
       </Container>
@@ -173,4 +146,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AdminLogin;
