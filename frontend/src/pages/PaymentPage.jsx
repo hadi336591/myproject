@@ -11,6 +11,11 @@ import BackButton from '../components/BackButton';
 import { AuthContext } from '../context/AuthContext';
 import SafepayCheckout from '../components/SafepayCheckout';
 
+// Get environment variables
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const VISA_AMOUNT = parseInt(process.env.REACT_APP_VISA_AMOUNT || '3000');
+const CURRENCY = process.env.REACT_APP_CURRENCY || 'PKR';
+
 const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,7 +53,7 @@ const PaymentPage = () => {
     // Fetch user's application
     const fetchApplication = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/dashboard', {
+        const response = await fetch(`${API_URL}/dashboard`, {
           headers: {
             'Authorization': `Bearer ${auth.token}`
           }
@@ -94,7 +99,7 @@ const PaymentPage = () => {
       setLoading(true);
       const token = localStorage.getItem('safepayToken');
       
-      const response = await fetch('http://localhost:5000/api/payment/safepay/verify', {
+      const response = await fetch(`${API_URL}/payment/safepay/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -148,7 +153,7 @@ const PaymentPage = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/payment/safepay/create-session', {
+      const response = await fetch(`${API_URL}/payment/safepay/create-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +200,7 @@ const PaymentPage = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/payment/visa-application', {
+      const response = await fetch(`${API_URL}/payment/visa-application`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -203,8 +208,8 @@ const PaymentPage = () => {
         },
         body: JSON.stringify({
           applicationId: application._id,
-          amount: 3000,
-          currency: 'PKR',
+          amount: VISA_AMOUNT,
+          currency: CURRENCY,
           paymentMethod,
           paymentInfo: {
             ...paymentInfo,
@@ -289,7 +294,7 @@ const PaymentPage = () => {
           ) : (
             <>
               <Typography variant="body1" align="center" sx={{ mb: 3 }}>
-                Please pay 3000 PKR to complete your visa application process.
+                Please pay {VISA_AMOUNT} {CURRENCY} to complete your visa application process.
               </Typography>
               
               <FormControl component="fieldset" sx={{ mb: 3, width: '100%' }}>
@@ -362,7 +367,7 @@ const PaymentPage = () => {
                 <Collapse in={paymentMethod === 'bankTransfer'}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Alert severity="info" sx={{ mb: 2 }}>
-                      Please transfer 3000 PKR to our bank account and provide the details below:
+                      Please transfer {VISA_AMOUNT} {CURRENCY} to our bank account and provide the details below:
                       <br />
                       Account Title: Visa Services
                       <br />
@@ -411,7 +416,7 @@ const PaymentPage = () => {
                 <Collapse in={paymentMethod === 'easypaisa'}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Alert severity="info" sx={{ mb: 2 }}>
-                      Please send 3000 PKR to our Easypaisa account and provide the details below:
+                      Please send {VISA_AMOUNT} {CURRENCY} to our Easypaisa account and provide the details below:
                       <br />
                       Account Title: Visa Services
                       <br />
@@ -441,7 +446,7 @@ const PaymentPage = () => {
                 <Collapse in={paymentMethod === 'jazzCash'}>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <Alert severity="info" sx={{ mb: 2 }}>
-                      Please send 3000 PKR to our Jazz Cash account and provide the details below:
+                      Please send {VISA_AMOUNT} {CURRENCY} to our Jazz Cash account and provide the details below:
                       <br />
                       Account Title: Visa Services
                       <br />
@@ -493,7 +498,7 @@ const PaymentPage = () => {
                   size="large"
                   sx={{ mt: 2, py: 1.5 }}
                 >
-                  {loading ? <CircularProgress size={24} /> : 'Pay 3000 PKR'}
+                  {loading ? <CircularProgress size={24} /> : `Pay ${VISA_AMOUNT} ${CURRENCY}`}
                 </Button>
               </Box>
             </>

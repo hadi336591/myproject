@@ -11,6 +11,11 @@ import BackButton from '../components/BackButton';
 import { AuthContext } from '../context/AuthContext';
 import SafepayCheckout from '../components/SafepayCheckout';
 
+// Get environment variables
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const DRAW_AMOUNT = parseInt(process.env.REACT_APP_DRAW_AMOUNT || '3000');
+const CURRENCY = process.env.REACT_APP_CURRENCY || 'PKR';
+
 const DrawPayment = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,7 +75,7 @@ const DrawPayment = () => {
       setLoading(true);
       const token = localStorage.getItem('safepayToken');
       
-      const response = await fetch('http://localhost:5000/api/payment/safepay/verify', {
+      const response = await fetch(`${API_URL}/payment/safepay/verify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +132,7 @@ const DrawPayment = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/payment/safepay/create-session', {
+      const response = await fetch(`${API_URL}/payment/safepay/create-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +179,7 @@ const DrawPayment = () => {
     setError('');
     
     try {
-      const response = await fetch('http://localhost:5000/api/payment/draw-application', {
+      const response = await fetch(`${API_URL}/payment/draw-application`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,8 +187,8 @@ const DrawPayment = () => {
         },
         body: JSON.stringify({
           applicationId,
-          amount: 3000,
-          currency: 'PKR',
+          amount: DRAW_AMOUNT,
+          currency: CURRENCY,
           paymentMethod,
           paymentInfo: {
             ...paymentInfo,
@@ -229,7 +234,7 @@ const DrawPayment = () => {
           <Divider sx={{ mb: 3 }} />
           
           <Typography variant="body1" align="center" sx={{ mb: 3 }}>
-            Please pay 3000 PKR to join the lucky draw and get a chance to win free visa processing.
+            Please pay {DRAW_AMOUNT} {CURRENCY} to join the lucky draw and get a chance to win free visa processing.
           </Typography>
           
           {error && (
@@ -314,7 +319,7 @@ const DrawPayment = () => {
             <Collapse in={paymentMethod === 'bankTransfer'}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  Please transfer 3000 PKR to our bank account and provide the details below:
+                  Please transfer {DRAW_AMOUNT} {CURRENCY} to our bank account and provide the details below:
                   <br />
                   Account Title: Visa Services
                   <br />
@@ -363,7 +368,7 @@ const DrawPayment = () => {
             <Collapse in={paymentMethod === 'easypaisa'}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  Please send 3000 PKR to our Easypaisa account and provide the details below:
+                  Please send {DRAW_AMOUNT} {CURRENCY} to our Easypaisa account and provide the details below:
                   <br />
                   Account Title: Visa Services
                   <br />
@@ -393,7 +398,7 @@ const DrawPayment = () => {
             <Collapse in={paymentMethod === 'jazzCash'}>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Alert severity="info" sx={{ mb: 2 }}>
-                  Please send 3000 PKR to our Jazz Cash account and provide the details below:
+                  Please send {DRAW_AMOUNT} {CURRENCY} to our Jazz Cash account and provide the details below:
                   <br />
                   Account Title: Visa Services
                   <br />
@@ -445,7 +450,7 @@ const DrawPayment = () => {
               size="large"
               sx={{ mt: 2, py: 1.5 }}
             >
-              {loading ? <CircularProgress size={24} /> : 'Pay 3000 PKR & Join Draw'}
+              {loading ? <CircularProgress size={24} /> : `Pay ${DRAW_AMOUNT} ${CURRENCY} & Join Draw`}
             </Button>
           </Box>
         </Paper>
