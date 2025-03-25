@@ -2,16 +2,18 @@ import { useState, useEffect, useContext } from 'react';
 import { 
   Container, Typography, Button, Box, TextField, Paper, 
   Grid, CircularProgress, Alert, Divider, Radio, RadioGroup,
-  FormControlLabel, FormControl, FormLabel, Collapse
+  FormControlLabel, FormControl, FormLabel, Collapse, Dialog, DialogContent
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BackButton from '../components/BackButton';
 import { AuthContext } from '../context/AuthContext';
+import SafepayCheckout from '../components/SafepayCheckout';
 
 const PaymentPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { auth } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,6 +35,8 @@ const PaymentPage = () => {
     mobileNumber: '',
     transactionId: ''
   });
+  const [safepayCheckoutUrl, setSafepayCheckoutUrl] = useState('');
+  const [showSafepayCheckout, setShowSafepayCheckout] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -46,6 +50,7 @@ const PaymentPage = () => {
       try {
         const response = await fetch('http://localhost:5000/api/dashboard', {
           headers: {
+            '```
             'Authorization': `Bearer ${auth.token}`
           }
         });
@@ -60,7 +65,7 @@ const PaymentPage = () => {
             setSuccess('Payment has already been completed for this application.');
           }
         } else if (!data.application) {
-          setError('No applicationfound. Please submit an application form first.');
+          setError('No application found. Please submit an application form first.');
         } else {
           setError(data.message || 'Failed to fetch application data');
         }
@@ -71,7 +76,57 @@ const PaymentPage = () => {
     };
     
     fetchApplication();
-  }, [auth, navigate]);
+
+    // Check for Safepay redirect
+    const urlParams = new URLSearchParams(location.search);
+    const status = urlParams.get('status');
+    const orderId = urlParams.get('order_id');
+    
+    if (status === 'success' && orderId) {
+      // Verify the payment with backend
+      verifyPayment(orderId);
+    } else if (status === 'cancelled') {
+      setError('Payment was cancelled. Please try again.');
+    }
+  }, [auth, navigate, location.search]);
+
+  const verifyPayment = async (orderId) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('safepayToken');
+      
+      const response = await fetch('http://localhost:5000/api/payment/safepay/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${auth.token}`
+        },
+        body: JSON.stringify({
+          token,
+          applicationId: orderId
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setSuccess('Payment successful! Your visa application is now complete.');
+        localStorage.removeItem('safepayToken');
+        
+        // Redirect to dashboard after a short delay
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      } else {
+        setError(data.message || 'Payment verification failed');
+      }
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      setError('An error occurred while verifying your payment');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePaymentChange = (e) => {
     setPaymentInfo({
@@ -84,9 +139,56 @@ const PaymentPage = () => {
     setPaymentMethod(e.target.value);
   };
 
+  const handleSafepayPayment = async () => {
+    if (!application) {
+      setError('No application found');
+      return;
+    }
+    
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/payment/safepay/create-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${auth.token}`
+        },
+        body: JSON.stringify({
+          applicationId: application._id,
+          returnUrl: window.location.href.split('?')[0] // Current URL without query params
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.checkoutUrl) {
+        // Store token for verification after redirect
+        localStorage.setItem('safepayToken', data.token);
+        
+        // Open Safepay checkout
+        setSafepayCheckoutUrl(data.checkoutUrl);
+        setShowSafepayCheckout(true);
+      } else {
+        setError(data.message || 'Failed to create payment session');
+      }
+    } catch (error) {
+      console.error('Error creating Safepay session:', error);
+      setError('An error occurred while setting up the payment');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePayment = async () => {
     if (!application) {
       setError('No application found');
+      return;
+    }
+    
+    if (paymentMethod === 'safepay') {
+      handleSafepayPayment();
       return;
     }
     
@@ -203,6 +305,7 @@ const PaymentPage = () => {
                   <FormControlLabel value="bankTransfer" control={<Radio />} label="Bank Transfer" />
                   <FormControlLabel value="easypaisa" control={<Radio />} label="Easypaisa" />
                   <FormControlLabel value="jazzCash" control={<Radio />} label="Jazz Cash" />
+                  <FormControlLabel value="safepay" control={<Radio />} label="Safepay (Recommended)" />
                 </RadioGroup>
               </FormControl>
               
@@ -365,6 +468,24 @@ const PaymentPage = () => {
                   </Box>
                 </Collapse>
                 
+                {/* Safepay Form */}
+                <Collapse in={paymentMethod === 'safepay'}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                      Pay securely using Safepay - Pakistan's trusted payment gateway.
+                      <br />
+                      You'll be redirected to Safepay's secure checkout page.
+                    </Alert>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                      <img 
+                        src="https://getsafepay.com/wp-content/uploads/2023/03/safepay-logo-1.png" 
+                        alt="Safepay" 
+                        style={{ height: '40px' }} 
+                      />
+                    </Box>
+                  </Box>
+                </Collapse>
+                
                 <Button
                   variant="contained"
                   onClick={handlePayment}
@@ -381,6 +502,18 @@ const PaymentPage = () => {
         </Paper>
       </Container>
       <Footer />
+
+      {/* Safepay Checkout Dialog */}
+      <Dialog 
+        open={showSafepayCheckout} 
+        onClose={() => setShowSafepayCheckout(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogContent sx={{ p: 0, height: '600px' }}>
+          <SafepayCheckout checkoutUrl={safepayCheckoutUrl} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

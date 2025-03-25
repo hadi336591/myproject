@@ -10,7 +10,7 @@ const DrawApplicationSchema = new mongoose.Schema({
   passportScan: { type: String, required: true }, // URL to stored image
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   paymentStatus: { type: Boolean, default: false },
-  paymentMethod: { type: String, enum: ['creditCard', 'bankTransfer', 'easypaisa', 'jazzCash'], default: null },
+  paymentMethod: { type: String, enum: ['creditCard', 'bankTransfer', 'easypaisa', 'jazzCash', 'safepay'], default: null },
   paymentDetails: { type: Object, default: {} },
   paymentDate: { type: Date },
   isWinner: { type: Boolean, default: false },
