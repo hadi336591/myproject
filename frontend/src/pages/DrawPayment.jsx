@@ -11,10 +11,10 @@ import BackButton from '../components/BackButton';
 import { AuthContext } from '../context/AuthContext';
 import SafepayCheckout from '../components/SafepayCheckout';
 
-// Get environment variables
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-const DRAW_AMOUNT = parseInt(process.env.REACT_APP_DRAW_AMOUNT || '3000');
-const CURRENCY = process.env.REACT_APP_CURRENCY || 'PKR';
+// Get environment variables - with fallbacks for development
+const API_URL = 'http://localhost:5000/api';
+const DRAW_AMOUNT = 3000;
+const CURRENCY = 'PKR';
 
 const DrawPayment = () => {
   const navigate = useNavigate();
