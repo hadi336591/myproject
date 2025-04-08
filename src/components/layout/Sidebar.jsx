@@ -1,7 +1,7 @@
 //use this component to create a sidebar for your application
 // place it in main.tsx file
 //adjust the items based on route paths
-import { Home, ShoppingCart, CreditCard } from "lucide-react";
+import { Home, ShoppingCart, Gift } from "lucide-react";
 
 import {
   Sidebar,
@@ -26,6 +26,11 @@ const items = [
     url: "/checkout",
     icon: ShoppingCart,
   },
+  {
+    title: "Lucky Draw",
+    url: "/lucky-draw",
+    icon: Gift,
+  }
 ];
 
 export function AppSidebar() {
