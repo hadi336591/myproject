@@ -18,6 +18,7 @@ import CheckoutPage from "./pages/checkout";
 import PaymentSuccessPage from "./pages/payment-success";
 import PaymentCancelPage from "./pages/payment-cancel";
 import LuckyDrawPage from "./pages/lucky-draw";
+import SimplePaymentPage from "./pages/simple-payment";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,7 @@ createRoot(document.getElementById("root")).render(
             <Route path='/lucky-draw' element={<LuckyDrawPage />} />
             <Route path='/payment-success' element={<PaymentSuccessPage />} />
             <Route path='/payment-cancel' element={<PaymentCancelPage />} />
+            <Route path='/simple-payment' element={<SimplePaymentPage />} />
           </Routes>
         </BrowserRouter>
         <Sonner />

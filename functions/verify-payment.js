@@ -15,6 +15,8 @@ export async function POST(req) {
       });
     }
 
+    console.log("Verifying payment token:", token);
+
     // Verify the payment with SafePay
     const response = await fetch(`${SAFEPAY_API_BASE}/v1/checkout/verify`, {
       method: "POST",
@@ -27,6 +29,7 @@ export async function POST(req) {
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("SafePay verification error:", errorData);
       return new Response(JSON.stringify({ 
         error: errorData.message || "Failed to verify payment" 
       }), {
@@ -36,6 +39,7 @@ export async function POST(req) {
     }
 
     const paymentData = await response.json();
+    console.log("Payment verified successfully:", paymentData);
 
     // Here you would typically update your database to record the payment
     // For example:

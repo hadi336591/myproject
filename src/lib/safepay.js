@@ -16,6 +16,8 @@ const SAFEPAY_API_BASE = "https://sandbox.api.getsafepay.com"; // Use https://ap
  */
 export async function createSafePayCheckout(options) {
   try {
+    console.log("Creating SafePay checkout with options:", options);
+    
     const response = await fetch(`${SAFEPAY_API_BASE}/v1/checkout/create`, {
       method: "POST",
       headers: {
@@ -28,8 +30,8 @@ export async function createSafePayCheckout(options) {
         amount: options.amount,
         currency: options.currency,
         order_id: options.orderId,
-        customer_email: options.customerEmail,
-        customer_name: options.customerName,
+        customer_email: options.customerEmail || undefined,
+        customer_name: options.customerName || undefined,
         description: options.description,
         redirect_url: options.redirectUrl || window.location.origin + "/payment-success",
         cancel_url: options.cancelUrl || window.location.origin + "/payment-cancel",
@@ -38,10 +40,13 @@ export async function createSafePayCheckout(options) {
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("SafePay API error:", errorData);
       throw new Error(errorData.message || "Failed to create SafePay checkout");
     }
 
     const data = await response.json();
+    console.log("SafePay checkout created:", data);
+    
     return {
       token: data.token,
       checkoutUrl: data.checkout_url

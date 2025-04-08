@@ -24,8 +24,12 @@ export default function PaymentSuccessPage() {
           throw new Error("Payment token not found");
         }
 
+        console.log("Verifying payment token:", token);
+
         // Verify the payment with SafePay
         const verificationResult = await verifySafePayPayment(token);
+        console.log("Payment verification result:", verificationResult);
+        
         setPaymentDetails(verificationResult);
         
         toast({

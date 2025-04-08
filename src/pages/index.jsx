@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Gift } from "lucide-react";
+import { ShoppingCart, Gift, CreditCard } from "lucide-react";
 
 const Index = () => {
   return (
@@ -23,6 +23,13 @@ const Index = () => {
             <Link to="/lucky-draw">
               <Gift className="mr-2 h-5 w-5" />
               Join Lucky Draw
+            </Link>
+          </Button>
+          
+          <Button asChild size="lg" variant="secondary">
+            <Link to="/simple-payment">
+              <CreditCard className="mr-2 h-5 w-5" />
+              Simple Payment
             </Link>
           </Button>
         </div>
